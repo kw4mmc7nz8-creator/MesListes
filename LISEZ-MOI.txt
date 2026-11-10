@@ -1,15 +1,11 @@
-MESLISTES V4 — INSTALLATION ET PRÉCAUTIONS
+MesListes V5 — Installation
 
-1. Sur votre iPhone, ouvrez la V3 et choisissez Sauvegarde > Exporter toutes les listes. Conservez le fichier en sécurité.
-2. Décompressez MesListes-V4.zip sur votre Mac.
-3. Remplacez les fichiers de votre dépôt GitHub Pages par le CONTENU du dossier MesListes. Ne déposez pas le ZIP tel quel.
-4. Attendez le déploiement de GitHub Pages puis rouvrez MesListes. Si l'ancienne version reste affichée, fermez et rouvrez l'application, puis rechargez la page Safari.
-5. Vérifiez vos listes existantes, puis testez une sauvegarde et une importation.
+1. Dans la V4, choisissez « Sauvegarder / Restaurer » puis « Créer une copie de sauvegarde ». Conservez le fichier JSON dans Fichiers.
+2. Décompressez MesListes-V5.zip.
+3. Déposez le CONTENU du dossier MesListes dans la racine de votre dépôt GitHub Pages, en remplaçant les fichiers de la V4.
+4. Attendez la publication GitHub Pages puis rouvrez MesListes. Si l’ancienne version persiste, fermez puis rouvrez l’application et rechargez Safari.
+5. Vérifiez vos listes AVANT de supprimer l’ancien raccourci. Pour actualiser l’icône d’accueil, il peut être nécessaire d’ajouter à nouveau MesListes depuis Safari. Ne supprimez pas les données du site.
 
-V4 : nouvelle icône d'import en haut à droite ; bouton Sauvegarder / Restaurer avec disquette ; dialogues harmonisés ; partage image ou fichier ; flèche Retour commune ; légende photo ; traits d'icônes plus épais ; curseur 15 % moins sensible.
+Nouveautés : bandeau turquoise uni, logo et icônes d’accueil turquoise, texte « Importer liste », sauvegarde sur une ligne, sélection multiple et suppression confirmée des listes et notes, miniatures de photos, partage et icônes améliorés, légende photo agrandie.
 
-ATTENTION : restaurer une sauvegarde complète REMPLACE toutes les listes actuellement présentes après confirmation. Importer une liste AJOUTE une copie sans supprimer les listes existantes.
-
-Les données restent stockées localement dans l'IndexedDB de l'iPhone. Ne supprimez pas les données du site sans sauvegarde. Les sauvegardes sont des fichiers JSON et peuvent être volumineuses si vous avez beaucoup de photos.
-
-Aucun abonnement ni service de transfert requis.
+Important : la suppression est irréversible après confirmation. Testez d’abord sur des listes de démonstration. Les données restent stockées localement dans IndexedDB sous le même nom que les versions précédentes.

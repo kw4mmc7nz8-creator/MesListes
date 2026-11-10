@@ -39,3 +39,29 @@
 .choiceBottom{display:flex;justify-content:flex-end;margin-top:3px}
 .cancelChoice{color:#008f91;border:1.5px solid #008f91;border-radius:10px;padding:9px 23px;font-weight:600}
 @media(max-width:360px){.homeTop{padding-left:8px;gap:6px}.homeTop>img{width:35px;height:35px}.importHome{right:6px}.footer{padding-left:10px;padding-right:10px}.backupAction .icon svg{width:25px;height:25px}}
+
+/* V5: unified turquoise branding and compact, legible controls */
+.homeTop{background:#009c9e!important;padding-right:88px}
+.importHome{width:79px;height:67px;right:3px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:3px 0;color:#fff}
+.importHome svg{width:28px;height:28px}
+.importLegend{font-size:10px;font-weight:500;white-space:nowrap;line-height:1.1}
+.backupAction{max-width:none;min-width:0;flex:0 1 auto;gap:5px;white-space:nowrap;text-align:center;font-size:clamp(11px,3.1vw,15px);line-height:1;letter-spacing:-.3px}
+.backupAction span:last-child{max-width:none;white-space:nowrap}
+.backupAction .icon svg{width:28px;height:28px}
+.footer>.action:last-child{flex:none}
+.shareSimple svg{width:37px;height:37px;stroke-width:2.1}
+.selectCircle{width:32px;height:32px;padding:0;display:grid;place-items:center;flex:none;color:#aab2b5}
+.selectCircle svg{width:30px;height:30px;stroke-width:1.8}
+.selectCircle.checked{color:#009c9e}
+.selectCircle.checked svg{stroke-width:2.3}
+.bulkDelete{border:1.5px solid #e44549;border-radius:10px;padding:9px 11px;color:#d7353d;font-size:clamp(13px,3.6vw,17px);white-space:nowrap}
+.bulkDelete:disabled{opacity:.4}
+.photoThumb{width:46px;height:46px;border-radius:7px;overflow:hidden;padding:0;flex:none;background:#f0f0f0;border:1px solid #ddd}
+.photoThumb img{width:100%;height:100%;display:block;object-fit:cover}
+.editorHead>.iconButton:last-child{width:59px;height:59px}
+.editorHead>.iconButton:last-child svg{width:49px;height:49px;stroke-width:2.4}
+.cameraGroup svg{stroke-width:2.5}
+.cameraLegend{font-size:clamp(13px,3.65vw,16px);max-width:270px;line-height:1.17}
+.editorHead{min-height:113px}
+.cameraGroup{max-width:280px}
+@media(max-width:375px){.homeTop{gap:5px;padding-left:8px;padding-right:79px;font-size:21px}.homeTop>img{width:36px;height:36px}.importHome{right:1px;width:73px}.importLegend{font-size:9px}.footer{padding-left:10px;padding-right:10px}.backupAction{font-size:11px}.backupAction .icon svg{width:24px;height:24px}}
