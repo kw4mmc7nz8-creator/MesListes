@@ -1,26 +1,24 @@
-MESLISTES V2 — 10 novembre 2026
+MesListes V3 — 10 novembre 2026
 
-INSTALLATION / MISE A JOUR
-1. Dans le dépôt GitHub MesListes, remplacez les fichiers de la V1 par ceux de ce dossier, à la racine du dépôt.
-2. Conservez exactement la même adresse GitHub Pages et le même nom de dépôt.
-3. Avant la mise à jour, ouvrez MesListes V1 sur l'iPhone et exportez une sauvegarde.
-4. Après la publication, ouvrez MesListes sur Safari puis vérifiez que vos listes existent toujours.
-5. Pour rafraîchir l'icône de l'écran d'accueil, il peut être nécessaire de retirer l'ancien raccourci et de l'ajouter de nouveau (sans effacer les données du site).
+INSTALLATION
+1. Avant la mise à jour, dans MesListes V2, utilisez Sauvegarde > Exporter toutes les listes. Conservez ce fichier.
+2. Décompressez MesListes-V3.zip.
+3. Dans le dépôt GitHub Pages MesListes, remplacez les fichiers à la racine du site par le contenu du dossier MesListes (index.html, app.js, style.css, etc.). Ne déposez pas le dossier MesListes lui-même comme sous-dossier.
+4. Validez les changements sur GitHub, puis rechargez l'application sur iPhone. Le cache hors connexion est versionné V3.
 
-AMELIORATIONS
-- Icone PNG pour iPhone et en-tête MesListes.
-- Centrage des boutons +, corbeille et partage iPhone.
-- Ecriture plus épaisse (+20%), sans déformation à l'affichage.
-- Glissement de suppression avec confirmation.
-- Déplacement visuel des notes et des listes en mode Edit.
-- Photos multiples par note, appareil photo ou photothèque, confirmation, consultation.
-- Stockage local IndexedDB et migration des données de V1 depuis localStorage.
-- Sauvegarde complète JSON, photos incluses.
-- Partage par lien compressé pour les listes de taille modérée, avec confirmation d'import.
+FONCTIONS V3
+- Icône principale choisie par l'utilisateur et bandeau turquoise uni.
+- Icônes de dossier bleu, partage turquoise carré et photo aux montagnes turquoise.
+- Corbeille redessinée et symbole de suppression recentré.
+- Écriture : nouveau système de coordonnées à échelle uniforme pour les nouvelles notes ; ajustement de rendu des anciennes notes V2.
+- Partage : envoyer des images PNG de la liste (plusieurs pages si besoin) ou un fichier JSON complet (photos incluses).
+- Importation : Sauvegarde > Importer une liste, vérification du fichier, confirmation explicite et ajout sans remplacer les listes existantes. Les doublons reçoivent « (copie) ».
 
-LIMITES IMPORTANTES
-- Le partage par lien est limité à 6500 caractères. Les listes avec photos risquent de dépasser ce seuil. Dans ce cas, l'application propose l'envoi d'un fichier JSON. Un transfert de grosses photos par lien en un clic demanderait un service de transfert temporaire supplémentaire.
-- L'application PWA ne peut pas garantir qu'un lien reçu s'ouvre dans la PWA plutôt que dans Safari. L'import se fait depuis la page web MesListes.
-- La sauvegarde est indispensable : iOS peut effacer des données de sites dans certaines circonstances.
-- Tests de syntaxe réalisés ; les gestes et permissions doivent être testés sur votre iPhone.
-- Aucune synchronisation iCloud et aucune dépendance JavaScript externe.
+LIMITES / PRÉCAUTIONS
+- Une photo PNG partagée est une image de consultation, non une liste modifiable.
+- Un fichier JSON est importable dans MesListes V3 mais peut nécessiter d'être enregistré dans Fichiers par le destinataire.
+- Le partage de plusieurs images via le menu de partage dépend de la prise en charge par Safari/iOS. Sinon les PNG sont téléchargés.
+- Les photos très volumineuses peuvent être refusées par SMS/e-mail selon le service.
+- Le facteur correctif appliqué à l'affichage des anciennes écritures V2 est une approximation : la géométrie originale de certaines notes V2 n'est pas récupérable exactement.
+- Le fonctionnement sur iPhone et la migration des données doivent être testés sur l'appareil réel ; aucune garantie de fonctionnement sans défaut.
+- La mise à jour ne supprime pas volontairement les données locales, mais une sauvegarde avant remplacement est indispensable.
