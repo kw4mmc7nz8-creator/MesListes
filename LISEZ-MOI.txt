@@ -1,24 +1,15 @@
-MesListes V3 — 10 novembre 2026
+MESLISTES V4 — INSTALLATION ET PRÉCAUTIONS
 
-INSTALLATION
-1. Avant la mise à jour, dans MesListes V2, utilisez Sauvegarde > Exporter toutes les listes. Conservez ce fichier.
-2. Décompressez MesListes-V3.zip.
-3. Dans le dépôt GitHub Pages MesListes, remplacez les fichiers à la racine du site par le contenu du dossier MesListes (index.html, app.js, style.css, etc.). Ne déposez pas le dossier MesListes lui-même comme sous-dossier.
-4. Validez les changements sur GitHub, puis rechargez l'application sur iPhone. Le cache hors connexion est versionné V3.
+1. Sur votre iPhone, ouvrez la V3 et choisissez Sauvegarde > Exporter toutes les listes. Conservez le fichier en sécurité.
+2. Décompressez MesListes-V4.zip sur votre Mac.
+3. Remplacez les fichiers de votre dépôt GitHub Pages par le CONTENU du dossier MesListes. Ne déposez pas le ZIP tel quel.
+4. Attendez le déploiement de GitHub Pages puis rouvrez MesListes. Si l'ancienne version reste affichée, fermez et rouvrez l'application, puis rechargez la page Safari.
+5. Vérifiez vos listes existantes, puis testez une sauvegarde et une importation.
 
-FONCTIONS V3
-- Icône principale choisie par l'utilisateur et bandeau turquoise uni.
-- Icônes de dossier bleu, partage turquoise carré et photo aux montagnes turquoise.
-- Corbeille redessinée et symbole de suppression recentré.
-- Écriture : nouveau système de coordonnées à échelle uniforme pour les nouvelles notes ; ajustement de rendu des anciennes notes V2.
-- Partage : envoyer des images PNG de la liste (plusieurs pages si besoin) ou un fichier JSON complet (photos incluses).
-- Importation : Sauvegarde > Importer une liste, vérification du fichier, confirmation explicite et ajout sans remplacer les listes existantes. Les doublons reçoivent « (copie) ».
+V4 : nouvelle icône d'import en haut à droite ; bouton Sauvegarder / Restaurer avec disquette ; dialogues harmonisés ; partage image ou fichier ; flèche Retour commune ; légende photo ; traits d'icônes plus épais ; curseur 15 % moins sensible.
 
-LIMITES / PRÉCAUTIONS
-- Une photo PNG partagée est une image de consultation, non une liste modifiable.
-- Un fichier JSON est importable dans MesListes V3 mais peut nécessiter d'être enregistré dans Fichiers par le destinataire.
-- Le partage de plusieurs images via le menu de partage dépend de la prise en charge par Safari/iOS. Sinon les PNG sont téléchargés.
-- Les photos très volumineuses peuvent être refusées par SMS/e-mail selon le service.
-- Le facteur correctif appliqué à l'affichage des anciennes écritures V2 est une approximation : la géométrie originale de certaines notes V2 n'est pas récupérable exactement.
-- Le fonctionnement sur iPhone et la migration des données doivent être testés sur l'appareil réel ; aucune garantie de fonctionnement sans défaut.
-- La mise à jour ne supprime pas volontairement les données locales, mais une sauvegarde avant remplacement est indispensable.
+ATTENTION : restaurer une sauvegarde complète REMPLACE toutes les listes actuellement présentes après confirmation. Importer une liste AJOUTE une copie sans supprimer les listes existantes.
+
+Les données restent stockées localement dans l'IndexedDB de l'iPhone. Ne supprimez pas les données du site sans sauvegarde. Les sauvegardes sont des fichiers JSON et peuvent être volumineuses si vous avez beaucoup de photos.
+
+Aucun abonnement ni service de transfert requis.

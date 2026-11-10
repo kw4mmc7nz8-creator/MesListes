@@ -11,3 +11,31 @@
 .editDelete:before{content:'';position:absolute;width:19px;height:19px;border:2px solid white;border-radius:50%;inset:50% auto auto 50%;transform:translate(-50%,-50%)}
 .editDelete:after{content:'';position:absolute;width:11px;height:2px;background:white;left:50%;top:50%;transform:translate(-50%,-50%)}
 .editorHead .iconButton svg{aspect-ratio:1;display:block}
+/* V4: consistent icons and dialogs */
+.homeTop{position:relative;padding:0 62px 0 14px;gap:9px;font-size:clamp(20px,5.4vw,25px)}
+.homeTop>strong{white-space:nowrap}.homeTop>img{width:40px;height:40px;flex:none}
+.importHome{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#fff;width:42px;height:48px;padding:5px}
+.importHome svg{width:29px;height:29px}
+.backDetail{width:48px;height:48px}
+.backDetail svg,.editorHead>.iconButton svg{stroke-width:2.28}
+.shareSimple{width:52px;height:52px;color:#008e91;padding:5px}
+.shareSimple svg{width:35px;height:35px;stroke-width:2.15}
+.backupAction{display:flex;align-items:center;justify-content:center;gap:6px;color:#008e91;font-size:clamp(12px,3.25vw,16px);line-height:1.15;text-align:left;max-width:58%;padding:3px}
+.backupAction .icon svg{width:31px;height:31px}
+.backupAction span:last-child{max-width:135px}
+.editorHead{min-height:95px;align-items:flex-start;padding:13px 13px 5px;gap:4px}
+.editorHead>.iconButton{width:48px;height:48px}
+.editorHead>.iconButton svg{width:37px;height:37px}
+.cameraGroup{display:flex;align-items:center;flex-direction:column;gap:3px;flex:1;max-width:230px}
+.cameraGroup>.iconButton{padding:0;height:48px;width:62px}
+.cameraGroup svg{width:43px;height:43px;stroke-width:2.28}
+.cameraLegend{color:#679eb5;text-align:center;font-size:clamp(10px,2.9vw,12px);line-height:1.15;max-width:205px}
+.choiceDialog{width:min(100%,480px);gap:17px;padding:22px;border-radius:17px}
+.choiceDialog>strong{font-size:20px}
+.dialogDescription{font-size:16px;line-height:1.4;margin:0 0 3px}
+.choiceActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.choiceAction{display:flex;align-items:center;justify-content:center;gap:7px;flex-direction:column;min-height:112px;border-radius:13px;padding:11px 7px;background:#008f91;color:white;font-weight:600;font-size:clamp(12px,3.3vw,15px);line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.choiceAction svg{width:28px;height:28px;stroke-width:2.1}
+.choiceBottom{display:flex;justify-content:flex-end;margin-top:3px}
+.cancelChoice{color:#008f91;border:1.5px solid #008f91;border-radius:10px;padding:9px 23px;font-weight:600}
+@media(max-width:360px){.homeTop{padding-left:8px;gap:6px}.homeTop>img{width:35px;height:35px}.importHome{right:6px}.footer{padding-left:10px;padding-right:10px}.backupAction .icon svg{width:25px;height:25px}}
