@@ -1,0 +1,26 @@
+MESLISTES V2 — 10 novembre 2026
+
+INSTALLATION / MISE A JOUR
+1. Dans le dépôt GitHub MesListes, remplacez les fichiers de la V1 par ceux de ce dossier, à la racine du dépôt.
+2. Conservez exactement la même adresse GitHub Pages et le même nom de dépôt.
+3. Avant la mise à jour, ouvrez MesListes V1 sur l'iPhone et exportez une sauvegarde.
+4. Après la publication, ouvrez MesListes sur Safari puis vérifiez que vos listes existent toujours.
+5. Pour rafraîchir l'icône de l'écran d'accueil, il peut être nécessaire de retirer l'ancien raccourci et de l'ajouter de nouveau (sans effacer les données du site).
+
+AMELIORATIONS
+- Icone PNG pour iPhone et en-tête MesListes.
+- Centrage des boutons +, corbeille et partage iPhone.
+- Ecriture plus épaisse (+20%), sans déformation à l'affichage.
+- Glissement de suppression avec confirmation.
+- Déplacement visuel des notes et des listes en mode Edit.
+- Photos multiples par note, appareil photo ou photothèque, confirmation, consultation.
+- Stockage local IndexedDB et migration des données de V1 depuis localStorage.
+- Sauvegarde complète JSON, photos incluses.
+- Partage par lien compressé pour les listes de taille modérée, avec confirmation d'import.
+
+LIMITES IMPORTANTES
+- Le partage par lien est limité à 6500 caractères. Les listes avec photos risquent de dépasser ce seuil. Dans ce cas, l'application propose l'envoi d'un fichier JSON. Un transfert de grosses photos par lien en un clic demanderait un service de transfert temporaire supplémentaire.
+- L'application PWA ne peut pas garantir qu'un lien reçu s'ouvre dans la PWA plutôt que dans Safari. L'import se fait depuis la page web MesListes.
+- La sauvegarde est indispensable : iOS peut effacer des données de sites dans certaines circonstances.
+- Tests de syntaxe réalisés ; les gestes et permissions doivent être testés sur votre iPhone.
+- Aucune synchronisation iCloud et aucune dépendance JavaScript externe.
