@@ -106,3 +106,14 @@
 .eraseControl{align-self:flex-end;margin:0 12px 0 0;color:#679eb5;gap:9px}
 .eraseControl svg{width:36px;height:36px;stroke-width:2.35}
 @media(max-width:375px){.homeTop>img{width:44px;height:44px}.homeTop .brandTitle{font-size:20px}.importHome{width:88px;right:1px}.importLegend{font-size:10px}.footer{padding-left:10px;padding-right:10px}.footer>.footerCenter{width:60%;font-size:12px}}
+
+/* V9 — alignements et pictogrammes aux proportions fixes */
+.homeTop>img{position:absolute;left:auto;right:calc(50% + 77px);top:50%;transform:translateY(-50%);width:53px;height:53px;object-fit:contain}
+.footer>.footerCenter .icon svg{width:40px;height:40px;flex:none}
+.footer>.shareWithLabel .icon svg{width:39px;height:39px;aspect-ratio:1;transform:none;overflow:visible}
+.footer>.bulkDelete{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;display:flex;align-items:center;justify-content:center;gap:7px;background:#fff0f0;border:1.5px solid #f0b7b7;color:#c92536;border-radius:12px;padding:11px 12px;font-size:clamp(14px,3.6vw,17px);font-weight:600;white-space:nowrap;z-index:1}
+.footer>.bulkDelete .icon{display:grid;place-items:center}
+.footer>.bulkDelete svg{width:22px;height:22px;stroke-width:2.2}
+.footer>.bulkDelete:disabled{opacity:.43}
+.editorOk{display:grid;place-items:center;width:48px;height:48px;flex:none;color:#679eb5;font-size:clamp(20px,5vw,25px);font-weight:600;padding:0}
+@media(max-width:375px){.homeTop>img{width:44px;height:44px;right:calc(50% + 64px)}.footer>.bulkDelete{font-size:13px;padding:10px 8px;gap:4px}}
