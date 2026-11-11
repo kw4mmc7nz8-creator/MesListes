@@ -1,11 +1,10 @@
-MesListes V5 — Installation
+MesListes V6 — installation sur GitHub Pages
 
-1. Dans la V4, choisissez « Sauvegarder / Restaurer » puis « Créer une copie de sauvegarde ». Conservez le fichier JSON dans Fichiers.
-2. Décompressez MesListes-V5.zip.
-3. Déposez le CONTENU du dossier MesListes dans la racine de votre dépôt GitHub Pages, en remplaçant les fichiers de la V4.
-4. Attendez la publication GitHub Pages puis rouvrez MesListes. Si l’ancienne version persiste, fermez puis rouvrez l’application et rechargez Safari.
-5. Vérifiez vos listes AVANT de supprimer l’ancien raccourci. Pour actualiser l’icône d’accueil, il peut être nécessaire d’ajouter à nouveau MesListes depuis Safari. Ne supprimez pas les données du site.
+1. Avant la mise à jour, dans la V5, utilisez Sauvegarder / Restaurer pour créer une copie de sauvegarde complète.
+2. Remplacez les fichiers du dépôt GitHub Pages par TOUS les fichiers du dossier MesListes de cette archive, en conservant la même adresse et le même nom de dépôt.
+3. Attendez la publication, puis ouvrez de nouveau MesListes sur votre iPhone. Si l'ancienne version reste visible, fermez puis rouvrez l'application ; le cache de la PWA peut demander un second lancement.
+4. Vérifiez la présence de vos listes avant d'effectuer d'autres opérations.
 
-Nouveautés : bandeau turquoise uni, logo et icônes d’accueil turquoise, texte « Importer liste », sauvegarde sur une ligne, sélection multiple et suppression confirmée des listes et notes, miniatures de photos, partage et icônes améliorés, légende photo agrandie.
+Les données restent sur l'appareil via IndexedDB. Ne supprimez pas les données Safari du site et ne désinstallez pas l'application avant de vérifier vos sauvegardes.
 
-Important : la suppression est irréversible après confirmation. Testez d’abord sur des listes de démonstration. Les données restent stockées localement dans IndexedDB sous le même nom que les versions précédentes.
+V6 : 16 corrections visuelles et ergonomiques, importation identifiée en saumon, photo ajoutée sans confirmation supplémentaire, gomme au-dessus du curseur.
