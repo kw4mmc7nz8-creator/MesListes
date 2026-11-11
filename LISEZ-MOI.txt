@@ -1,10 +1,9 @@
-MesListes V6 — installation sur GitHub Pages
+MesListes V7 — mise à jour de la V6.
 
-1. Avant la mise à jour, dans la V5, utilisez Sauvegarder / Restaurer pour créer une copie de sauvegarde complète.
-2. Remplacez les fichiers du dépôt GitHub Pages par TOUS les fichiers du dossier MesListes de cette archive, en conservant la même adresse et le même nom de dépôt.
-3. Attendez la publication, puis ouvrez de nouveau MesListes sur votre iPhone. Si l'ancienne version reste visible, fermez puis rouvrez l'application ; le cache de la PWA peut demander un second lancement.
-4. Vérifiez la présence de vos listes avant d'effectuer d'autres opérations.
+Décompressez le ZIP puis remplacez les fichiers de votre dépôt GitHub Pages par ceux du dossier MesListes. Conservez la même URL et le même navigateur pour retrouver vos données locales.
 
-Les données restent sur l'appareil via IndexedDB. Ne supprimez pas les données Safari du site et ne désinstallez pas l'application avant de vérifier vos sauvegardes.
+Avant la mise à jour : dans la V6, utilisez Sauvegarder / Restaurer pour créer une copie de sauvegarde JSON et conservez-la dans Fichiers.
 
-V6 : 16 corrections visuelles et ergonomiques, importation identifiée en saumon, photo ajoutée sans confirmation supplémentaire, gomme au-dessus du curseur.
+Modifications V7 : bandeau légèrement abaissé, commandes centrales sur deux lignes, boutons Ajouter et Éditer inversés, couleurs uniformisées, Réinitialiser à droite, nouvelle icône et légende Importer une liste.
+
+Important : ne désinstallez pas la PWA et ne videz pas les données de Safari. Testez les fonctions sur votre iPhone après déploiement.
