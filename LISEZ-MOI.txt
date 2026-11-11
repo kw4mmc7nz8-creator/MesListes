@@ -1,9 +1,9 @@
-MesListes V7 — mise à jour de la V6.
+MesListes V8 — mise à jour de la V7
 
-Décompressez le ZIP puis remplacez les fichiers de votre dépôt GitHub Pages par ceux du dossier MesListes. Conservez la même URL et le même navigateur pour retrouver vos données locales.
+Avant installation, créez une copie de sauvegarde depuis Sauvegarder / Restaurer.
 
-Avant la mise à jour : dans la V6, utilisez Sauvegarder / Restaurer pour créer une copie de sauvegarde JSON et conservez-la dans Fichiers.
+Corrections : icône Importer une liste redessinée, icône Partager avec base carrée, commandes Sauvegarder / Restaurer et Partager cette liste centrées avec écart de 4 pixels entre icône et légende.
 
-Modifications V7 : bandeau légèrement abaissé, commandes centrales sur deux lignes, boutons Ajouter et Éditer inversés, couleurs uniformisées, Réinitialiser à droite, nouvelle icône et légende Importer une liste.
+Le nom et le format du stockage local restent inchangés. Ne désinstallez pas l’application ni n’effacez ses données.
 
-Important : ne désinstallez pas la PWA et ne videz pas les données de Safari. Testez les fonctions sur votre iPhone après déploiement.
+Pour publier : remplacer les fichiers de votre dépôt GitHub Pages par ceux de ce dossier.

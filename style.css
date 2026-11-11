@@ -86,19 +86,20 @@
 .choiceDialog>strong{font-size:23px}
 @media(max-width:375px){.homeTop>img{width:44px;height:44px}.homeTop .brandTitle{font-size:20px}.shareWithLabel{font-size:11px;gap:2px}.shareWithLabel svg{width:32px;height:32px}.cameraLegend{font-size:15px}}
 
-/* V7 — commandes harmonisées, accessibilité au pouce droit */
+
+/* V8: commandes compactes, centrées, identiques sur les deux pages */
 :root{--meslistes:#009c9e}
 .homeTop{margin-top:9px;background:var(--meslistes)!important;background-image:none!important;box-shadow:none!important}
+.homeTop>img{width:53px;height:53px}
 .importHome{width:104px;right:2px}
 .importHome svg{width:31px;height:31px}
 .importLegend{font-size:clamp(10px,2.55vw,12px);white-space:nowrap}
-.homeTop>img{width:53px;height:53px}
 .footer{position:relative;min-height:106px;padding:8px 16px max(12px,env(safe-area-inset-bottom));color:var(--meslistes);gap:6px}
 .detailFoot{color:var(--meslistes)}
 .footer>.editAction{order:0;flex:none;color:var(--meslistes);font-size:clamp(19px,5vw,23px);padding:8px 0}
-.footer>.footerCenter{order:1;position:absolute;left:50%;top:5px;bottom:max(9px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(56%,260px);max-width:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:3px;padding:3px 0 0;color:var(--meslistes);text-align:center;white-space:nowrap;font-size:clamp(12px,3.3vw,16px);letter-spacing:normal;line-height:1.15}
+.footer>.footerCenter{order:1;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(61%,280px);max-width:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;color:var(--meslistes);text-align:center;white-space:nowrap;font-size:clamp(12px,3.3vw,16px);letter-spacing:normal;line-height:1.15}
 .footerCenter .icon{display:grid;place-items:center;flex:none}
-.footerCenter .icon svg,.footerCenter svg{width:34px;height:34px;stroke-width:2.2}
+.footerCenter .icon svg,.footerCenter svg{width:36px;height:36px;stroke-width:2.2}
 .footerCenter span:last-child{white-space:nowrap;max-width:none}
 .footer>.plus{order:2;margin-left:auto;flex:none}
 .footer>.bulkDelete{order:1;margin:0 auto}
