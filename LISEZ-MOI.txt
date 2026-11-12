@@ -1,6 +1,6 @@
-MesListes V10TER — 12 novembre 2026
+MesListes V10QUATER
 
-Corrections : palette turquoise unifiée, disquette relevée, zone de saisie adaptée au clavier iPhone.
+Correction : le bouton « Importer une liste » et sa légende restent blancs sur le bandeau turquoise. La V10TER les recolorait en turquoise sur turquoise, ce qui les rendait invisibles.
 
-Avant la mise à jour, sauvegardez vos listes depuis la version installée.
-Le stockage IndexedDB et les formats de sauvegarde restent inchangés.
+Les autres fonctions et données restent inchangées.
+Avant toute mise à jour, sauvegardez vos listes.

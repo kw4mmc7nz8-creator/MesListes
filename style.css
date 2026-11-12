@@ -160,3 +160,9 @@
 .keyboardField{display:block;min-height:0;overflow-y:auto;scroll-padding-bottom:20px;font-size:21px}
 .editor:has(.keyboardPanel) .editorSpace{min-height:0}
 .editor:has(.keyboardPanel) .editorBottom{height:0}
+
+/* V10QUATER: l’import reste blanc sur le bandeau turquoise.
+   La règle générique .iconButton de V10TER avait recoloré ce bouton en turquoise,
+   le rendant invisible sur le fond de même couleur. */
+.homeTop .importHome,.homeTop .importHome .icon,.homeTop .importHome .importLegend{color:#fff}
+.homeTop .importHome{visibility:visible;opacity:1}
