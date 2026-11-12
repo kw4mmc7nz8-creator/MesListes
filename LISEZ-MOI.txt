@@ -1,5 +1,5 @@
-MesListes V10 — version à tester.
-Décompressez et remplacez les fichiers du dépôt GitHub Pages.
-Avant mise à jour : exportez une sauvegarde depuis V9.
-La base IndexedDB existante est conservée ; aucun effacement automatique.
-Nouveautés : mode clavier par note, réinitialisation, icône import rectangulaire, alignements.
+MesListes V10BIS — version de test
+
+Corrections : bouton + à gauche et Éditer/OK à droite sur les listes et notes ; icône Importer abaissée de 5 px ; activation immédiate du champ de saisie au clavier dans le geste de l’utilisateur (pour permettre l’ouverture du clavier iOS).
+
+Avant mise à jour, sauvegardez vos listes depuis la version précédente. Les données locales existantes ne sont pas volontairement effacées.

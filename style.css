@@ -132,3 +132,11 @@
 .keyboardPanel{flex:none;height:270px;background:#fff;padding:12px}
 .keyboardField{width:100%;height:100%;border:1px solid #d6d6d6;border-radius:9px;padding:14px;font:21px -apple-system,BlinkMacSystemFont,sans-serif;resize:none;outline-color:var(--meslistes)}
 .typedNote{flex:1;white-space:pre-wrap;overflow-wrap:anywhere;font-size:21px;padding:14px 0}
+
+/* V10BIS — inversion des actions sur les pages listes et notes */
+.footer>.plus{order:-1;margin-left:0;margin-right:auto}
+.footer>.editAction{order:3;margin-left:auto}
+/* Conserver la commande centrale exactement au centre */
+.footer>.bulkDelete{top:calc(50% - 6px)}
+/* Rapprocher le pictogramme d'import de sa légende sans déplacer celle-ci */
+.importHome .icon{transform:translateY(5px)}
