@@ -1,8 +1,5 @@
-MesListes V9 — installation GitHub Pages
-
-Sauvegardez vos listes depuis la V8 avant toute mise à jour.
-Décompressez ce ZIP et placez le contenu du dossier MesListes à la racine du dépôt GitHub Pages.
-Ne supprimez pas l’application installée sur votre iPhone et n’effacez pas les données du site.
-
-Corrections : disquette légèrement agrandie, logo rapproché du titre, icône de partage carrée, bouton OK sur la saisie, suppression centrée avec corbeille et compteur sur les deux pages.
-Fichier photo-selected.png retiré car non utilisé. Les icônes PWA et logo-original.png sont conservés.
+MesListes V10 — version à tester.
+Décompressez et remplacez les fichiers du dépôt GitHub Pages.
+Avant mise à jour : exportez une sauvegarde depuis V9.
+La base IndexedDB existante est conservée ; aucun effacement automatique.
+Nouveautés : mode clavier par note, réinitialisation, icône import rectangulaire, alignements.
