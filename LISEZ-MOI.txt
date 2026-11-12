@@ -1,5 +1,6 @@
-MesListes V10BIS — version de test
+MesListes V10TER — 12 novembre 2026
 
-Corrections : bouton + à gauche et Éditer/OK à droite sur les listes et notes ; icône Importer abaissée de 5 px ; activation immédiate du champ de saisie au clavier dans le geste de l’utilisateur (pour permettre l’ouverture du clavier iOS).
+Corrections : palette turquoise unifiée, disquette relevée, zone de saisie adaptée au clavier iPhone.
 
-Avant mise à jour, sauvegardez vos listes depuis la version précédente. Les données locales existantes ne sont pas volontairement effacées.
+Avant la mise à jour, sauvegardez vos listes depuis la version installée.
+Le stockage IndexedDB et les formats de sauvegarde restent inchangés.

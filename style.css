@@ -140,3 +140,23 @@
 .footer>.bulkDelete{top:calc(50% - 6px)}
 /* Rapprocher le pictogramme d'import de sa légende sans déplacer celle-ci */
 .importHome .icon{transform:translateY(5px)}
+
+/* V10TER — palette unique et alignements */
+:root{--meslistes:#009c9e}
+.iconButton,.photoButton,.editorOk,.cameraLegend,.eraseControl,.entryControls .eraseControl,
+.modeControl,.detailFoot,.detailFoot .plus,.detailFoot .iconButton,
+.footer>.editAction,.footer>.footerCenter,.backupAction,.shareWithLabel,
+.choiceAction,.cancelChoice,.dialogActions button:not(.danger){color:var(--meslistes)}
+.plus,.detailFoot .plus{background:var(--meslistes);color:#fff}
+.choiceAction{background:var(--meslistes);color:#fff}
+.item.received{background:#f6d5ce}
+/* La disquette remonte, sans déplacer sa légende. */
+.backupAction .icon{transform:translateY(-5px)}
+/* Le champ reste dans la partie visible au-dessus du clavier iOS. */
+#app{height:var(--visible-app-height,100dvh);max-height:var(--visible-app-height,100dvh);overflow:hidden}
+.editor{min-height:0;overflow:hidden}
+.editorSpace{min-height:0;flex:1 1 0}
+.keyboardPanel{height:clamp(110px,28vh,230px);flex:0 1 auto;min-height:100px;overflow:hidden}
+.keyboardField{display:block;min-height:0;overflow-y:auto;scroll-padding-bottom:20px;font-size:21px}
+.editor:has(.keyboardPanel) .editorSpace{min-height:0}
+.editor:has(.keyboardPanel) .editorBottom{height:0}
