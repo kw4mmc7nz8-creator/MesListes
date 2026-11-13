@@ -1,6 +1,11 @@
-MesListes V10QUATER
+MesListes V11 — version de test longue durée
 
-Correction : le bouton « Importer une liste » et sa légende restent blancs sur le bandeau turquoise. La V10TER les recolorait en turquoise sur turquoise, ce qui les rendait invisibles.
+À installer en remplaçant les fichiers du dépôt GitHub Pages.
+Avant la mise à jour, créer une sauvegarde JSON de toutes vos listes.
+Conservation du stockage IndexedDB MesListesDB (schéma inchangé).
 
-Les autres fonctions et données restent inchangées.
-Avant toute mise à jour, sauvegardez vos listes.
+Changements V11 : centrage des touches du pictogramme Clavier ; sécurisation des écritures de création et suppression en cas d’échec du stockage ; cache actualisé.
+Les autres fonctions et la présentation de la V10QUATER sont conservées.
+
+Tests effectués : vérification statique JavaScript et intégrité ZIP.
+Tests à réaliser sur iPhone : clavier, écriture, photos, import, partage, sauvegarde/restauration, suppression et réorganisation.
