@@ -24,3 +24,9 @@ Le premier tri contenant des notes manuscrites télécharge le moteur et le mod�
 Cette technologie n'est pas spécialisée dans l'écriture manuscrite : elle peut mal reconnaître les mots. Les mots inconnus restent à la fin de la liste.
 Si le moteur ne peut pas se charger ou échoue, l'application affiche « Tri par rayon actuellement indisponible. » et ne modifie pas l'ordre de la liste.
 Conservez une sauvegarde de vos listes avant d'installer cette version de test.
+
+
+V12test2 : indicateur de progression animé dès le clic sur Tri par rayon,
+messages de fin même si aucun déplacement n'est possible, délai maximum de 45 s,
+message d'indisponibilité si le moteur OCR échoue.
+Le moteur OCR Tesseract.js reste expérimental et nécessite Internet au premier chargement.

@@ -73,22 +73,40 @@ function groceryGroup(note){
  }
  return groceryGroups.length;
 }
-// Optional experiment: Tesseract.js runs OCR locally in the browser after downloading
-// its code and French language data. No note image is uploaded to an OCR service.
+// Experimental, local OCR. Only sorting metadata is derived; the original ink is never modified.
 let ocrWorker=null,ocrLoading=null,sorting=false;
+const SORT_TIMEOUT_MS=45000;
+function sortStatus(message){
+ const existing=document.querySelector('#sortStatus');
+ if(existing){existing.querySelector('.sortStatusText').textContent=message;return existing}
+ const cover=E('div','sortStatusOverlay');cover.id='sortStatus';
+ cover.setAttribute('role','status');cover.setAttribute('aria-live','polite');
+ const panel=E('div','sortStatusPanel');
+ const spinner=E('div','sortHourglass');spinner.textContent='⌛';spinner.setAttribute('aria-hidden','true');
+ panel.append(spinner,E('strong','sortStatusTitle','Tri par rayon en cours…'),E('p','sortStatusText',message));
+ cover.append(panel);document.body.append(cover);return cover;
+}
+function sortNotice(message){
+ const cover=E('div','modal'),panel=E('div','dialog');
+ panel.append(E('strong','',message));
+ panel.append(B('OK',()=>cover.remove(),'sortNoticeOK'));
+ cover.append(panel);document.body.append(cover);
+}
 function loadOcrScript(){return new Promise((resolve,reject)=>{
  if(window.Tesseract)return resolve();
  const script=document.createElement('script');
  script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
- script.onload=()=>window.Tesseract?resolve():reject(new Error('OCR absent'));
- script.onerror=()=>reject(new Error('Réseau indisponible'));
+ script.onload=()=>window.Tesseract?resolve():reject(new Error('Moteur OCR absent'));
+ script.onerror=()=>reject(new Error('Téléchargement OCR impossible'));
  document.head.append(script);
 })}
 async function getOcr(){
  if(ocrWorker)return ocrWorker;
  if(!ocrLoading)ocrLoading=(async()=>{
+  sortStatus('Chargement du moteur de reconnaissance…');
   await loadOcrScript();
-  return await Tesseract.createWorker('fra',1);
+  sortStatus('Chargement du modèle français…');
+  return await window.Tesseract.createWorker('fra',1);
  })().then(w=>(ocrWorker=w,w)).catch(e=>{ocrLoading=null;throw e});
  return ocrLoading;
 }
@@ -111,38 +129,63 @@ function handwritingImage(note){
  });if(stroke.length===1)ctx.lineTo(margin+(stroke[0].x*xFactor-minx)*scale+0.2,margin+(stroke[0].y-miny)*scale);ctx.stroke()}
  return canvas;
 }
-async function sortByAisle(){
- if(sorting)return;
- const target=list(),notes=target.notes;
- if(notes.length<2)return;
- sorting=true;
- const button=document.querySelector('.sortByAisle');
- if(button)button.disabled=true;
- try{
-  const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
-  let worker=null;
-  if(handwriting.length){
-   if(!navigator.onLine)throw new Error('hors ligne');
-   worker=await getOcr();
-  }
-  const recognized=new Map();
-  for(const note of handwriting){
-   const img=handwritingImage(note);
+async function runSort(target,notes){
+ const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
+ const recognized=new Map();
+ if(handwriting.length){
+  if(!navigator.onLine&&!ocrWorker)throw new Error('Modèle OCR non disponible hors ligne');
+  const worker=await getOcr();
+  for(let i=0;i<handwriting.length;i++){
+   sortStatus(`Reconnaissance manuscrite : ${i+1} / ${handwriting.length}`);
+   const note=handwriting[i],img=handwritingImage(note);
    if(!img)continue;
-   // Low confidence or unknown words are deliberately classified last.
    const result=await worker.recognize(img);
    const confidence=result?.data?.confidence||0;
    recognized.set(note.id,confidence>=40?(result.data.text||''):'');
   }
-  const previous=[...notes];
-  const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
-   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
-  if(sorted.every((n,i)=>n===previous[i]))return;
-  notes.splice(0,notes.length,...sorted);
-  try{await persist();selected.clear();render()}
-  catch(e){notes.splice(0,notes.length,...previous);throw e}
- }catch(e){console.warn('Tri par rayon indisponible',e);alert('Tri par rayon actuellement indisponible.')}
- finally{sorting=false;if(button?.isConnected)button.disabled=false}
+ }
+ sortStatus('Classement des produits…');
+ const previous=[...notes];
+ const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
+  .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
+ if(sorted.every((n,i)=>n===previous[i]))return 'Aucun changement : aucun classement supplémentaire possible.';
+ // Do not change another list if the user navigated away during OCR.
+ if(list()!==target)throw new Error('La liste a changé');
+ notes.splice(0,notes.length,...sorted);
+ try{await persist();selected.clear();render()}
+ catch(e){notes.splice(0,notes.length,...previous);throw e}
+ return 'Tri par rayon terminé.';
+}
+async function sortByAisle(){
+ if(sorting)return;
+ const target=list();if(!target)return;
+ const notes=target.notes;
+ if(notes.length<2){sortNotice('Ajoutez au moins deux notes pour effectuer un tri.');return}
+ sorting=true;
+ const button=document.querySelector('.sortByAisle');if(button)button.disabled=true;
+ sortStatus('Préparation du classement…');
+ // Allow Safari to paint the indicator before the potentially expensive OCR setup.
+ await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+ let timeoutId;
+ try{
+  const result=await Promise.race([
+   runSort(target,notes),
+   new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('Délai OCR dépassé')),SORT_TIMEOUT_MS)})
+  ]);
+  document.querySelector('#sortStatus')?.remove();
+  sortNotice(result);
+ }catch(e){
+  console.warn('Tri par rayon indisponible',e);
+  // Release a stalled worker so a future attempt can start cleanly.
+  if(ocrWorker){try{ocrWorker.terminate()}catch{}ocrWorker=null}
+  ocrLoading=null;
+  document.querySelector('#sortStatus')?.remove();
+  sortNotice('Tri par rayon actuellement indisponible.');
+ }finally{
+  clearTimeout(timeoutId);sorting=false;
+  document.querySelector('#sortStatus')?.remove();
+  if(button?.isConnected)button.disabled=false;
+ }
 }
 
 function render(){app.replaceChildren();if(page==='editor')return renderEditor();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
