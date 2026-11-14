@@ -73,17 +73,78 @@ function groceryGroup(note){
  }
  return groceryGroups.length;
 }
-async function sortByAisle(){
- const notes=list().notes;
- if(notes.length<2)return;
- const previous=[...notes];
- const sorted=previous.map((note,index)=>({note,index,group:groceryGroup(note)}))
-   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
- if(sorted.every((n,i)=>n===previous[i]))return;
- notes.splice(0,notes.length,...sorted);
- try{await persist();selected.clear();render()}
- catch(e){notes.splice(0,notes.length,...previous)}
+// Optional experiment: Tesseract.js runs OCR locally in the browser after downloading
+// its code and French language data. No note image is uploaded to an OCR service.
+let ocrWorker=null,ocrLoading=null,sorting=false;
+function loadOcrScript(){return new Promise((resolve,reject)=>{
+ if(window.Tesseract)return resolve();
+ const script=document.createElement('script');
+ script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+ script.onload=()=>window.Tesseract?resolve():reject(new Error('OCR absent'));
+ script.onerror=()=>reject(new Error('Réseau indisponible'));
+ document.head.append(script);
+})}
+async function getOcr(){
+ if(ocrWorker)return ocrWorker;
+ if(!ocrLoading)ocrLoading=(async()=>{
+  await loadOcrScript();
+  return await Tesseract.createWorker('fra',1);
+ })().then(w=>(ocrWorker=w,w)).catch(e=>{ocrLoading=null;throw e});
+ return ocrLoading;
 }
+function handwritingImage(note){
+ const strokes=note.strokes||[];
+ const pts=strokes.flat().filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+ if(!pts.length)return null;
+ const xFactor=note.coordinateVersion===3?1:0.46;
+ const minx=Math.min(...pts.map(p=>p.x*xFactor)),maxx=Math.max(...pts.map(p=>p.x*xFactor));
+ const miny=Math.min(...pts.map(p=>p.y)),maxy=Math.max(...pts.map(p=>p.y));
+ const margin=36,scale=2.5;
+ const canvas=document.createElement('canvas');
+ canvas.width=Math.min(4096,Math.max(200,Math.ceil((maxx-minx)*scale+2*margin)));
+ canvas.height=Math.min(1024,Math.max(120,Math.ceil((maxy-miny)*scale+2*margin)));
+ const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.strokeStyle='#111';ctx.lineWidth=7;ctx.lineCap='round';ctx.lineJoin='round';
+ for(const stroke of strokes){ctx.beginPath();stroke.forEach((pt,i)=>{
+  const x=margin+(pt.x*xFactor-minx)*scale,y=margin+(pt.y-miny)*scale;
+  if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+ });if(stroke.length===1)ctx.lineTo(margin+(stroke[0].x*xFactor-minx)*scale+0.2,margin+(stroke[0].y-miny)*scale);ctx.stroke()}
+ return canvas;
+}
+async function sortByAisle(){
+ if(sorting)return;
+ const target=list(),notes=target.notes;
+ if(notes.length<2)return;
+ sorting=true;
+ const button=document.querySelector('.sortByAisle');
+ if(button)button.disabled=true;
+ try{
+  const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
+  let worker=null;
+  if(handwriting.length){
+   if(!navigator.onLine)throw new Error('hors ligne');
+   worker=await getOcr();
+  }
+  const recognized=new Map();
+  for(const note of handwriting){
+   const img=handwritingImage(note);
+   if(!img)continue;
+   // Low confidence or unknown words are deliberately classified last.
+   const result=await worker.recognize(img);
+   const confidence=result?.data?.confidence||0;
+   recognized.set(note.id,confidence>=40?(result.data.text||''):'');
+  }
+  const previous=[...notes];
+  const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
+   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
+  if(sorted.every((n,i)=>n===previous[i]))return;
+  notes.splice(0,notes.length,...sorted);
+  try{await persist();selected.clear();render()}
+  catch(e){notes.splice(0,notes.length,...previous);throw e}
+ }catch(e){console.warn('Tri par rayon indisponible',e);alert('Tri par rayon actuellement indisponible.')}
+ finally{sorting=false;if(button?.isConnected)button.disabled=false}
+}
+
 function render(){app.replaceChildren();if(page==='editor')return renderEditor();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
 if(page==='home'){row.append(B(v.name,()=>{current=v.id;page='detail';editing=false;selected.clear();render()},'name'),E('span','number','['+v.notes.length+']'))}else{const c=E('canvas','noteCanvas');row.append(c);if(v.text){c.style.display='none';row.append(E('span','typedNote',v.text))}else requestAnimationFrame(()=>drawNote(c,v.strokes,v.coordinateVersion));if(v.photos?.length){const thumb=B('',()=>viewPhotos(v.photos),'photoThumb');const im=E('img');im.src=v.photos[0];im.alt='Première photo de la note';im.loading='lazy';thumb.append(im);row.append(thumb)}}
 if(editing){const handle=E('span','handle','☰');row.append(handle);sortable(handle,wrap,arr,i,area)}else{const del=B('Supprimer',()=>removeConfirm(page==='home'?'cette liste':'cette note',async()=>{const removed=arr.splice(i,1);try{await persist()}catch(e){arr.splice(i,0,...removed);throw e}}),'swipeDelete');wrap.append(del);swipe(row)}wrap.append(row);area.append(wrap)});if(!arr.length)area.append(E('p','empty',page==='home'?'Appuyez sur + pour créer une liste.':'Aucune note. Appuyez sur + pour écrire.'));app.append(area,footer())}

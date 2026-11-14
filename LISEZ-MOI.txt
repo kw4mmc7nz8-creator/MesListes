@@ -16,3 +16,11 @@ restent intactes et sont rangées en fin de liste. Le tri des notes tapées fonc
 Installation : sauvegardez d'abord vos listes, puis remplacez les fichiers de votre dépôt GitHub Pages.
 Après publication, ouvrez l'application une fois avec une bonne connexion afin d'installer le cache V12.
 Testez le comportement sur votre iPhone avant d'utiliser le tri sur vos listes importantes.
+
+
+V12TEST1 — ESSAI RECONNAISSANCE MANUSCRITE
+Le bouton Tri par rayon expérimente Tesseract.js 5.1.1 en français.
+Le premier tri contenant des notes manuscrites télécharge le moteur et le modèle de langue depuis Internet. Le traitement OCR s'effectue ensuite sur l'iPhone, sans envoi de vos notes à un service OCR.
+Cette technologie n'est pas spécialisée dans l'écriture manuscrite : elle peut mal reconnaître les mots. Les mots inconnus restent à la fin de la liste.
+Si le moteur ne peut pas se charger ou échoue, l'application affiche « Tri par rayon actuellement indisponible. » et ne modifie pas l'ordre de la liste.
+Conservez une sauvegarde de vos listes avant d'installer cette version de test.
