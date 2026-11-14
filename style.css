@@ -166,3 +166,7 @@
    le rendant invisible sur le fond de même couleur. */
 .homeTop .importHome,.homeTop .importHome .icon,.homeTop .importHome .importLegend{color:#fff}
 .homeTop .importHome{visibility:visible;opacity:1}
+
+.footer>.sortByAisle{order:-1;margin-left:0;margin-right:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--meslistes);background:transparent;padding:3px 0;min-width:72px}
+.footer>.sortByAisle .icon svg{width:31px;height:31px}
+.footer>.sortByAisle .sortLabel{font-size:clamp(11px,3.1vw,14px);white-space:nowrap}
