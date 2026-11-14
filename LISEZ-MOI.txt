@@ -30,3 +30,5 @@ V12test2 : indicateur de progression animé dès le clic sur Tri par rayon,
 messages de fin même si aucun déplacement n'est possible, délai maximum de 45 s,
 message d'indisponibilité si le moteur OCR échoue.
 Le moteur OCR Tesseract.js reste expérimental et nécessite Internet au premier chargement.
+
+V12test3 : diagnostic OCR indiquant pour chaque note manuscrite le texte réellement lu et sa catégorie éventuelle. Si aucune note n'est reconnue, la liste ne bouge pas. Échec du moteur : « Tri par rayon actuellement indisponible. »

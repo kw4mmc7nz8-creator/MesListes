@@ -180,3 +180,6 @@
 @keyframes sortHourglassTurn{0%,15%{transform:rotate(0)}50%,65%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.sortHourglass{animation:none}}
 .sortNoticeOK{margin:18px auto 0;display:block;color:var(--meslistes);background:transparent;border:1px solid currentColor;border-radius:8px;padding:8px 26px;font-size:16px}
+
+/* V12test3: readable OCR diagnostic */
+.ocrDiagnostic{text-align:left;max-height:48vh;overflow-y:auto;line-height:1.4;font-size:15px}.ocrDiagnosticRow{padding:7px 0;border-bottom:1px solid #e8e8e8;overflow-wrap:anywhere}.ocrDiagnosticWarning{font-weight:600;margin-top:12px}

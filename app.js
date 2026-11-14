@@ -129,32 +129,55 @@ function handwritingImage(note){
  });if(stroke.length===1)ctx.lineTo(margin+(stroke[0].x*xFactor-minx)*scale+0.2,margin+(stroke[0].y-miny)*scale);ctx.stroke()}
  return canvas;
 }
-async function runSort(target,notes){
+// Experimental diagnostic: OCR output is shown for every handwritten note.
+function ocrDiagnostic(rows,classified,changed){
+ const body=E('div','ocrDiagnostic');
+ body.append(E('p','','Résultat de la reconnaissance manuscrite :'));
+ for(const row of rows){
+  const line=E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value ? '« '+row.value+' »' : 'non reconnue'}${row.category?' — '+row.category:''}`);
+  body.append(line);
+ }
+ if(!classified)body.append(E('p','ocrDiagnosticWarning','Aucun produit manuscrit reconnu et classé. Le tri n’a pas été effectué.'));
+ else body.append(E('p','',changed?'Les notes reconnues ont été classées.':'Aucun déplacement nécessaire pour les notes reconnues.'));
+ modal('Diagnostic du tri par rayon',[['OK',close=>close()]],body);
+}
+async function runSort(target,notes,signal){
  const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
- const recognized=new Map();
+ const recognized=new Map(),rows=[];
  if(handwriting.length){
   if(!navigator.onLine&&!ocrWorker)throw new Error('Modèle OCR non disponible hors ligne');
   const worker=await getOcr();
+  if(signal.aborted)throw new Error('Tri interrompu');
   for(let i=0;i<handwriting.length;i++){
+   if(signal.aborted)throw new Error('Tri interrompu');
    sortStatus(`Reconnaissance manuscrite : ${i+1} / ${handwriting.length}`);
    const note=handwriting[i],img=handwritingImage(note);
-   if(!img)continue;
+   if(!img){rows.push({number:i+1,value:'',category:''});continue}
    const result=await worker.recognize(img);
-   const confidence=result?.data?.confidence||0;
-   recognized.set(note.id,confidence>=40?(result.data.text||''):'');
+   if(signal.aborted)throw new Error('Tri interrompu');
+   // Show the actual OCR output, even if its confidence is low.
+   const raw=(result?.data?.text||'').replace(/\s+/g,' ').trim();
+   const group=groceryGroup({text:raw});
+   rows.push({number:i+1,value:raw,category:group<groceryGroups.length?groceryGroups[group][0]:''});
+   // Only recognized dictionary products influence sorting.
+   recognized.set(note.id,group<groceryGroups.length?raw:'');
   }
  }
+ if(signal.aborted)throw new Error('Tri interrompu');
  sortStatus('Classement des produits…');
+ const classified=notes.filter(n=>groceryGroup({text:n.text?.trim()||recognized.get(n.id)||''})<groceryGroups.length).length;
+ if(!classified){return {rows,classified,changed:false}}
  const previous=[...notes];
  const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
- if(sorted.every((n,i)=>n===previous[i]))return 'Aucun changement : aucun classement supplémentaire possible.';
- // Do not change another list if the user navigated away during OCR.
- if(list()!==target)throw new Error('La liste a changé');
- notes.splice(0,notes.length,...sorted);
- try{await persist();selected.clear();render()}
- catch(e){notes.splice(0,notes.length,...previous);throw e}
- return 'Tri par rayon terminé.';
+ const changed=!sorted.every((n,i)=>n===previous[i]);
+ if(changed){
+  if(list()!==target||signal.aborted)throw new Error('La liste a changé ou le tri a expiré');
+  notes.splice(0,notes.length,...sorted);
+  try{await persist();selected.clear();render()}
+  catch(e){notes.splice(0,notes.length,...previous);throw e}
+ }
+ return {rows,classified,changed};
 }
 async function sortByAisle(){
  if(sorting)return;
@@ -163,21 +186,22 @@ async function sortByAisle(){
  if(notes.length<2){sortNotice('Ajoutez au moins deux notes pour effectuer un tri.');return}
  sorting=true;
  const button=document.querySelector('.sortByAisle');if(button)button.disabled=true;
+ const signal={aborted:false};
  sortStatus('Préparation du classement…');
- // Allow Safari to paint the indicator before the potentially expensive OCR setup.
  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
  let timeoutId;
  try{
   const result=await Promise.race([
-   runSort(target,notes),
-   new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('Délai OCR dépassé')),SORT_TIMEOUT_MS)})
+   runSort(target,notes,signal),
+   new Promise((_,reject)=>{timeoutId=setTimeout(()=>{signal.aborted=true;reject(new Error('Délai OCR dépassé'))},SORT_TIMEOUT_MS)})
   ]);
   document.querySelector('#sortStatus')?.remove();
-  sortNotice(result);
+  if(result.rows.length)ocrDiagnostic(result.rows,result.classified,result.changed);
+  else sortNotice(result.changed?'Tri par rayon terminé.':'Aucun changement nécessaire.');
  }catch(e){
+  signal.aborted=true;
   console.warn('Tri par rayon indisponible',e);
-  // Release a stalled worker so a future attempt can start cleanly.
-  if(ocrWorker){try{ocrWorker.terminate()}catch{}ocrWorker=null}
+  if(ocrWorker){try{await ocrWorker.terminate()}catch{}ocrWorker=null}
   ocrLoading=null;
   document.querySelector('#sortStatus')?.remove();
   sortNotice('Tri par rayon actuellement indisponible.');
