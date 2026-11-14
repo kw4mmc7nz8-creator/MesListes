@@ -183,3 +183,8 @@
 
 /* V12test3: readable OCR diagnostic */
 .ocrDiagnostic{text-align:left;max-height:48vh;overflow-y:auto;line-height:1.4;font-size:15px}.ocrDiagnosticRow{padding:7px 0;border-bottom:1px solid #e8e8e8;overflow-wrap:anywhere}.ocrDiagnosticWarning{font-weight:600;margin-top:12px}
+
+/* V12test4: optional local stroke learning action */
+.teachAction{position:absolute;bottom:calc(95px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);border:1px solid #12aead;border-radius:18px;background:white;color:#098f91;padding:7px 13px;font-size:13px;white-space:nowrap;z-index:4}
+.teachPanel{display:flex;flex-direction:column;gap:10px;text-align:left;margin:14px 0}
+.teachPanel input{width:100%;box-sizing:border-box;border:1px solid #aaa;border-radius:8px;font-size:18px;padding:10px}

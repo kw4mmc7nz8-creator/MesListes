@@ -73,148 +73,180 @@ function groceryGroup(note){
  }
  return groceryGroups.length;
 }
-// Experimental, local OCR. Only sorting metadata is derived; the original ink is never modified.
-let ocrWorker=null,ocrLoading=null,sorting=false;
+
+// V12test4: native stroke recognition when available, and local teachable stroke
+// matching otherwise. No cloud API, account, subscription or text transmission.
+let sorting=false;
 const SORT_TIMEOUT_MS=45000;
+const TRAIN_KEY='meslistes-stroke-examples-v1';
+let strokeExamples=[];
+try{strokeExamples=JSON.parse(localStorage.getItem(TRAIN_KEY)||'[]');if(!Array.isArray(strokeExamples))strokeExamples=[]}catch{strokeExamples=[]}
 function sortStatus(message){
- const existing=document.querySelector('#sortStatus');
- if(existing){existing.querySelector('.sortStatusText').textContent=message;return existing}
- const cover=E('div','sortStatusOverlay');cover.id='sortStatus';
+ let cover=document.querySelector('#sortStatus');
+ if(cover){cover.querySelector('.sortStatusText').textContent=message;return}
+ cover=E('div','sortStatusOverlay');cover.id='sortStatus';
  cover.setAttribute('role','status');cover.setAttribute('aria-live','polite');
- const panel=E('div','sortStatusPanel');
- const spinner=E('div','sortHourglass');spinner.textContent='⌛';spinner.setAttribute('aria-hidden','true');
+ const panel=E('div','sortStatusPanel'),spinner=E('div','sortHourglass');
+ spinner.textContent='⌛';spinner.setAttribute('aria-hidden','true');
  panel.append(spinner,E('strong','sortStatusTitle','Tri par rayon en cours…'),E('p','sortStatusText',message));
- cover.append(panel);document.body.append(cover);return cover;
-}
-function sortNotice(message){
- const cover=E('div','modal'),panel=E('div','dialog');
- panel.append(E('strong','',message));
- panel.append(B('OK',()=>cover.remove(),'sortNoticeOK'));
  cover.append(panel);document.body.append(cover);
 }
-function loadOcrScript(){return new Promise((resolve,reject)=>{
- if(window.Tesseract)return resolve();
- const script=document.createElement('script');
- script.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
- script.onload=()=>window.Tesseract?resolve():reject(new Error('Moteur OCR absent'));
- script.onerror=()=>reject(new Error('Téléchargement OCR impossible'));
- document.head.append(script);
-})}
-async function getOcr(){
- if(ocrWorker)return ocrWorker;
- if(!ocrLoading)ocrLoading=(async()=>{
-  sortStatus('Chargement du moteur de reconnaissance…');
-  await loadOcrScript();
-  sortStatus('Chargement du modèle français…');
-  return await window.Tesseract.createWorker('fra',1);
- })().then(w=>(ocrWorker=w,w)).catch(e=>{ocrLoading=null;throw e});
- return ocrLoading;
-}
-function handwritingImage(note){
- const strokes=note.strokes||[];
- const pts=strokes.flat().filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
- if(!pts.length)return null;
- const xFactor=note.coordinateVersion===3?1:0.46;
- const minx=Math.min(...pts.map(p=>p.x*xFactor)),maxx=Math.max(...pts.map(p=>p.x*xFactor));
- const miny=Math.min(...pts.map(p=>p.y)),maxy=Math.max(...pts.map(p=>p.y));
- const margin=36,scale=2.5;
- const canvas=document.createElement('canvas');
- canvas.width=Math.min(4096,Math.max(200,Math.ceil((maxx-minx)*scale+2*margin)));
- canvas.height=Math.min(1024,Math.max(120,Math.ceil((maxy-miny)*scale+2*margin)));
- const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
- ctx.strokeStyle='#111';ctx.lineWidth=7;ctx.lineCap='round';ctx.lineJoin='round';
- for(const stroke of strokes){ctx.beginPath();stroke.forEach((pt,i)=>{
-  const x=margin+(pt.x*xFactor-minx)*scale,y=margin+(pt.y-miny)*scale;
-  if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
- });if(stroke.length===1)ctx.lineTo(margin+(stroke[0].x*xFactor-minx)*scale+0.2,margin+(stroke[0].y-miny)*scale);ctx.stroke()}
- return canvas;
-}
-// Experimental diagnostic: OCR output is shown for every handwritten note.
-function ocrDiagnostic(rows,classified,changed){
- const body=E('div','ocrDiagnostic');
- body.append(E('p','','Résultat de la reconnaissance manuscrite :'));
- for(const row of rows){
-  const line=E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value ? '« '+row.value+' »' : 'non reconnue'}${row.category?' — '+row.category:''}`);
-  body.append(line);
- }
- if(!classified)body.append(E('p','ocrDiagnosticWarning','Aucun produit manuscrit reconnu et classé. Le tri n’a pas été effectué.'));
- else body.append(E('p','',changed?'Les notes reconnues ont été classées.':'Aucun déplacement nécessaire pour les notes reconnues.'));
- modal('Diagnostic du tri par rayon',[['OK',close=>close()]],body);
-}
-async function runSort(target,notes,signal){
- const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
- const recognized=new Map(),rows=[];
- if(handwriting.length){
-  if(!navigator.onLine&&!ocrWorker)throw new Error('Modèle OCR non disponible hors ligne');
-  const worker=await getOcr();
-  if(signal.aborted)throw new Error('Tri interrompu');
-  for(let i=0;i<handwriting.length;i++){
-   if(signal.aborted)throw new Error('Tri interrompu');
-   sortStatus(`Reconnaissance manuscrite : ${i+1} / ${handwriting.length}`);
-   const note=handwriting[i],img=handwritingImage(note);
-   if(!img){rows.push({number:i+1,value:'',category:''});continue}
-   const result=await worker.recognize(img);
-   if(signal.aborted)throw new Error('Tri interrompu');
-   // Show the actual OCR output, even if its confidence is low.
-   const raw=(result?.data?.text||'').replace(/\s+/g,' ').trim();
-   const group=groceryGroup({text:raw});
-   rows.push({number:i+1,value:raw,category:group<groceryGroups.length?groceryGroups[group][0]:''});
-   // Only recognized dictionary products influence sorting.
-   recognized.set(note.id,group<groceryGroups.length?raw:'');
+function sortNotice(message){modal(message,[['OK',close=>close()]])}
+function normalizedStroke(note){
+ const factor=note.coordinateVersion===3?1:.46;
+ const lines=(note.strokes||[]).filter(st=>st.length).map(st=>st.filter(pt=>Number.isFinite(pt.x)&&Number.isFinite(pt.y)).map(pt=>({x:pt.x*factor,y:pt.y}))).filter(st=>st.length);
+ const points=lines.flat();
+ if(!points.length)return null;
+ const minx=Math.min(...points.map(p=>p.x)),maxx=Math.max(...points.map(p=>p.x));
+ const miny=Math.min(...points.map(p=>p.y)),maxy=Math.max(...points.map(p=>p.y));
+ const span=Math.max(maxx-minx,maxy-miny,1);
+ // Keep stroke boundaries and pen-lift count as discriminating features.
+ const sample=[];
+ for(const line of lines){
+  const distances=[0];
+  for(let i=1;i<line.length;i++)distances.push(distances[i-1]+Math.hypot(line[i].x-line[i-1].x,line[i].y-line[i-1].y));
+  const length=distances.at(-1);
+  const n=Math.min(28,Math.max(3,Math.round(length/span*24)));
+   if(line.length===1){for(let k=0;k<n;k++)sample.push([(line[0].x-minx)/span,(line[0].y-miny)/span,k===0?1:0]);continue}
+  for(let k=0;k<n;k++){
+   const target=length*k/(n-1);
+   let j=1;while(j<distances.length-1&&distances[j]<target)j++;
+   const prev=line[Math.max(0,j-1)],next=line[j]||prev;
+   const t=distances[j]===distances[j-1]?0:(target-distances[j-1])/(distances[j]-distances[j-1]);
+   sample.push([(prev.x+(next.x-prev.x)*t-minx)/span,(prev.y+(next.y-prev.y)*t-miny)/span,k===0?1:0]);
   }
  }
- if(signal.aborted)throw new Error('Tri interrompu');
- sortStatus('Classement des produits…');
- const classified=notes.filter(n=>groceryGroup({text:n.text?.trim()||recognized.get(n.id)||''})<groceryGroups.length).length;
- if(!classified){return {rows,classified,changed:false}}
- const previous=[...notes];
- const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
-  .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
- const changed=!sorted.every((n,i)=>n===previous[i]);
+ return sample.slice(0,1500);
+}
+function strokeDistance(a,b){
+ if(!a||!b||Math.abs(a.length-b.length)>Math.max(a.length,b.length)*.42)return Infinity;
+ const n=a.length,m=b.length,band=Math.max(12,Math.ceil(Math.max(n,m)*.3));
+ let prev=new Float64Array(m+1).fill(Infinity);prev[0]=0;
+ for(let i=1;i<=n;i++){
+  const cur=new Float64Array(m+1).fill(Infinity);
+  for(let j=Math.max(1,i-band);j<=Math.min(m,i+band);j++){
+   const dx=a[i-1][0]-b[j-1][0],dy=a[i-1][1]-b[j-1][1];
+   const lift=a[i-1][2]!==b[j-1][2]?0.4:0;
+   cur[j]=Math.hypot(dx,dy)+lift+Math.min(cur[j-1],prev[j],prev[j-1]);
+  }
+  prev=cur;
+ }
+ return prev[m]/Math.max(n,m);
+}
+function matchStrokes(note){
+ const sample=normalizedStroke(note);
+ if(!sample)return {text:'',method:'non reconnue'};
+ const candidates=strokeExamples.map(e=>({text:e.text,d:strokeDistance(sample,e.sample)})).sort((a,b)=>a.d-b.d);
+ if(!candidates.length||!Number.isFinite(candidates[0].d)||candidates[0].d>.16)return {text:'',method:'aucun modèle suffisamment proche'};
+ if(candidates.length>1&&candidates[1].text!==candidates[0].text&&candidates[1].d<candidates[0].d*1.22)return {text:'',method:'résultat ambigu'};
+ return {text:candidates[0].text,method:'modèle appris',score:candidates[0].d};
+}
+function learnStroke(note,text){
+ const sample=normalizedStroke(note),group=groceryGroup({text});
+ if(!sample||group===groceryGroups.length)return false;
+ strokeExamples.push({text:text.trim().slice(0,80),sample});
+ if(strokeExamples.length>160)strokeExamples=strokeExamples.slice(-160);
+ try{localStorage.setItem(TRAIN_KEY,JSON.stringify(strokeExamples));return true}
+ catch(e){strokeExamples.pop();return false}
+}
+function handwritingNative(note){
+ return new Promise(async resolve=>{
+  if(typeof window.HandwritingRecognizer==='undefined'||typeof window.HandwritingRecognizer.create!=='function')return resolve(null);
+  let recognizer;
+  try{
+   recognizer=await window.HandwritingRecognizer.create({languages:['fr']});
+   const drawing=recognizer.startDrawing();
+   for(const stroke of note.strokes||[]){
+    if(!stroke.length)continue;
+    const inkStroke=new window.HandwritingStroke();
+    inkStroke.addPoints(stroke.map(p=>({x:p.x,y:p.y})));
+    drawing.addStroke(inkStroke);
+   }
+   const prediction=await drawing.getPrediction();
+   resolve(prediction?.[0]?.text||null);
+  }catch(e){resolve(null)}
+  finally{try{recognizer?.finish?.()}catch{}}
+ });
+}
+function diagnosis(rows,changed){
+ const body=E('div','ocrDiagnostic');
+ body.append(E('p','','Reconnaissance des tracés (test expérimental) :'));
+ for(const r of rows)body.append(E('p','ocrDiagnosticRow',`Note ${r.i} : ${r.text?'« '+r.text+' »':'non reconnue'} — ${r.method}`));
+ body.append(E('p','ocrDiagnosticWarning',changed?'Les notes reconnues ont été classées.':'Aucun déplacement effectué.'));
+ body.append(E('p','','Pour apprendre votre écriture, sélectionnez une seule note manuscrite en mode Éditer, puis touchez « Apprendre ce mot ».'));
+ modal('Diagnostic du tri par rayon',[['OK',c=>c()]],body);
+}
+async function runSort(target,notes,signal){
+ const recognized=new Map(),rows=[];
+ const hand=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
+ for(let i=0;i<hand.length;i++){
+  if(signal.aborted)throw Error('Tri interrompu');
+  sortStatus(`Analyse des tracés : ${i+1} / ${hand.length}`);
+  const note=hand[i];
+  const native=await handwritingNative(note);
+  let result;
+  if(native&&groceryGroup({text:native})<groceryGroups.length)result={text:native,method:'reconnaissance native'};
+  else result=matchStrokes(note);
+  if(result.text&&groceryGroup({text:result.text})<groceryGroups.length)recognized.set(note.id,result.text);
+  rows.push({i:i+1,text:result.text,method:result.method});
+ }
+ if(signal.aborted)throw Error('Tri interrompu');
+ const old=[...notes];
+ const sorted=old.map((note,i)=>({note,i,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
+ .sort((a,b)=>a.group-b.group||a.i-b.i).map(x=>x.note);
+ const changed=!sorted.every((n,i)=>n===old[i]);
  if(changed){
-  if(list()!==target||signal.aborted)throw new Error('La liste a changé ou le tri a expiré');
+  if(list()!==target||signal.aborted)throw Error('Liste modifiée');
   notes.splice(0,notes.length,...sorted);
   try{await persist();selected.clear();render()}
-  catch(e){notes.splice(0,notes.length,...previous);throw e}
+  catch(e){notes.splice(0,notes.length,...old);throw e}
  }
- return {rows,classified,changed};
+ return {rows,changed};
 }
 async function sortByAisle(){
  if(sorting)return;
  const target=list();if(!target)return;
  const notes=target.notes;
  if(notes.length<2){sortNotice('Ajoutez au moins deux notes pour effectuer un tri.');return}
- sorting=true;
- const button=document.querySelector('.sortByAisle');if(button)button.disabled=true;
+ sorting=true;const button=document.querySelector('.sortByAisle');if(button)button.disabled=true;
  const signal={aborted:false};
  sortStatus('Préparation du classement…');
  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
  let timeoutId;
  try{
-  const result=await Promise.race([
-   runSort(target,notes,signal),
-   new Promise((_,reject)=>{timeoutId=setTimeout(()=>{signal.aborted=true;reject(new Error('Délai OCR dépassé'))},SORT_TIMEOUT_MS)})
-  ]);
+  const result=await Promise.race([runSort(target,notes,signal),new Promise((_,reject)=>{timeoutId=setTimeout(()=>{signal.aborted=true;reject(Error('Délai dépassé'))},SORT_TIMEOUT_MS)})]);
   document.querySelector('#sortStatus')?.remove();
-  if(result.rows.length)ocrDiagnostic(result.rows,result.classified,result.changed);
+  if(result.rows.length)diagnosis(result.rows,result.changed);
   else sortNotice(result.changed?'Tri par rayon terminé.':'Aucun changement nécessaire.');
- }catch(e){
-  signal.aborted=true;
-  console.warn('Tri par rayon indisponible',e);
-  if(ocrWorker){try{await ocrWorker.terminate()}catch{}ocrWorker=null}
-  ocrLoading=null;
-  document.querySelector('#sortStatus')?.remove();
-  sortNotice('Tri par rayon actuellement indisponible.');
- }finally{
-  clearTimeout(timeoutId);sorting=false;
-  document.querySelector('#sortStatus')?.remove();
-  if(button?.isConnected)button.disabled=false;
- }
+ }catch(e){signal.aborted=true;console.warn(e);document.querySelector('#sortStatus')?.remove();sortNotice('Tri par rayon actuellement indisponible.')}
+ finally{clearTimeout(timeoutId);sorting=false;document.querySelector('#sortStatus')?.remove();if(button?.isConnected)button.disabled=false}
+}
+function teachSelected(){
+ const notes=list()?.notes||[];
+ const note=notes.find(n=>selected.has(n.id));
+ if(selected.size!==1||!note?.strokes?.some(st=>st.length)){sortNotice('Sélectionnez une seule note manuscrite à apprendre.');return}
+ const body=E('div','teachPanel');
+ body.append(E('p','','Saisissez le mot correspondant à cette note manuscrite. Il sera utilisé comme exemple local pour vos prochains tris.'));
+ const input=E('input');input.placeholder='Ex. pommes';input.autocomplete='off';body.append(input);
+ modal('Apprendre ce mot',[['Annuler',c=>c()],['Enregistrer',c=>{
+  const word=input.value.trim();
+  if(!word){return}
+  if(groceryGroup({text:word})===groceryGroups.length){sortNotice('Ce produit ne figure pas encore dans le dictionnaire des rayons.');return}
+  if(learnStroke(note,word)){c();sortNotice('Exemple enregistré sur cet iPhone. Vous pouvez relancer le tri.')}
+  else sortNotice('Enregistrement de l’exemple impossible.');
+ }]],body);
+ input.focus();
 }
 
 function render(){app.replaceChildren();if(page==='editor')return renderEditor();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
 if(page==='home'){row.append(B(v.name,()=>{current=v.id;page='detail';editing=false;selected.clear();render()},'name'),E('span','number','['+v.notes.length+']'))}else{const c=E('canvas','noteCanvas');row.append(c);if(v.text){c.style.display='none';row.append(E('span','typedNote',v.text))}else requestAnimationFrame(()=>drawNote(c,v.strokes,v.coordinateVersion));if(v.photos?.length){const thumb=B('',()=>viewPhotos(v.photos),'photoThumb');const im=E('img');im.src=v.photos[0];im.alt='Première photo de la note';im.loading='lazy';thumb.append(im);row.append(thumb)}}
-if(editing){const handle=E('span','handle','☰');row.append(handle);sortable(handle,wrap,arr,i,area)}else{const del=B('Supprimer',()=>removeConfirm(page==='home'?'cette liste':'cette note',async()=>{const removed=arr.splice(i,1);try{await persist()}catch(e){arr.splice(i,0,...removed);throw e}}),'swipeDelete');wrap.append(del);swipe(row)}wrap.append(row);area.append(wrap)});if(!arr.length)area.append(E('p','empty',page==='home'?'Appuyez sur + pour créer une liste.':'Aucune note. Appuyez sur + pour écrire.'));app.append(area,footer())}
+if(editing){const handle=E('span','handle','☰');row.append(handle);sortable(handle,wrap,arr,i,area)}else{const del=B('Supprimer',()=>removeConfirm(page==='home'?'cette liste':'cette note',async()=>{const removed=arr.splice(i,1);try{await persist()}catch(e){arr.splice(i,0,...removed);throw e}}),'swipeDelete');wrap.append(del);swipe(row)}wrap.append(row);area.append(wrap)});if(!arr.length)area.append(E('p','empty',page==='home'?'Appuyez sur + pour créer une liste.':'Aucune note. Appuyez sur + pour écrire.'));app.append(area);
+if(page==='detail'&&editing){
+ const learn=B('Apprendre ce mot',teachSelected,'teachAction');
+ learn.title='Sélectionnez une seule note manuscrite pour apprendre son écriture';
+ app.append(learn);
+}
+app.append(footer())}
 function swipe(row){let sx=0,sy=0,open=false;row.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});row.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.4){open=dx<0;row.style.transform=open?'translateX(-116px)':''}},{passive:true})}
 function sortable(handle,wrap,arr,index,area){handle.addEventListener('pointerdown',e=>{e.preventDefault();handle.setPointerCapture(e.pointerId);const rect=wrap.getBoundingClientRect();drag={wrap,index,start:e.clientY,rect,arr};wrap.classList.add('dragging');wrap.style.zIndex=5});handle.addEventListener('pointermove',e=>{if(!drag||drag.wrap!==wrap)return;const dy=e.clientY-drag.start;wrap.style.transform=`translateY(${dy}px)`;const center=drag.rect.top+drag.rect.height/2+dy;const rows=[...area.querySelectorAll('.swipeWrap')];let dest=rows.findIndex(r=>center<r.getBoundingClientRect().top+r.getBoundingClientRect().height/2);if(dest<0)dest=rows.length-1;rows.forEach((r,j)=>{if(r!==wrap)r.style.transform=j>index&&j<=dest?'translateY(-100%)':j<index&&j>=dest?'translateY(100%)':''});drag.dest=dest});const finish=async()=>{if(!drag||drag.wrap!==wrap)return;const dest=drag.dest??index;drag=null;if(dest!==index){arr.splice(dest,0,arr.splice(index,1)[0]);await persist()}render()};handle.addEventListener('pointerup',finish);handle.addEventListener('pointercancel',finish)}
 function drawNote(c,lines,version){const w=c.clientWidth,h=c.clientHeight,d=devicePixelRatio||1;c.width=Math.round(w*d);c.height=Math.round(h*d);const ctx=c.getContext('2d');ctx.scale(d,d);if(!lines?.length)return;let minx=Infinity,maxx=-Infinity,miny=Infinity,maxy=-Infinity;const xfactor=version===3?1:.46;for(const stroke of lines)for(const p of stroke){minx=Math.min(minx,p.x*xfactor);maxx=Math.max(maxx,p.x*xfactor);miny=Math.min(miny,p.y);maxy=Math.max(maxy,p.y)}if(!Number.isFinite(minx))return;const scale=Math.min((w-24)/Math.max(1,maxx-minx),(h-12)/Math.max(1,maxy-miny),1);ctx.strokeStyle='#111';ctx.lineWidth=2.64*scale;ctx.lineCap='round';ctx.lineJoin='round';for(const stroke of lines){ctx.beginPath();stroke.forEach((p,i)=>i?ctx.lineTo(12+(p.x*xfactor-minx)*scale,6+(p.y-miny)*scale):ctx.moveTo(12+(p.x*xfactor-minx)*scale,6+(p.y-miny)*scale));if(stroke.length===1)ctx.lineTo(12+(stroke[0].x*xfactor-minx)*scale+.1,6+(stroke[0].y-miny)*scale);ctx.stroke()}}
