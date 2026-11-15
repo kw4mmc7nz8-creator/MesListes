@@ -49,3 +49,5 @@ V13test3 : diagnostic visuel. Chaque résultat OCR montre exactement l'image PNG
 V13test4 : classement amélioré avec variantes anglaises et petites erreurs OCR. Diagnostic : transcription → produit → rayon, avec image originale envoyée au moteur. Les notes originales ne sont pas modifiées.
 
 V13test5 : dictionnaire élargi, variantes et corrections locales prudentes. Diagnostic conservé (mot OCR, correction, rayon, méthode, image). Les mots ambigus restent non classés.
+
+V13test6 : prise en charge des noms composés (papier toilette, liquide vaisselle, gel douche, etc.). Recherche de l'expression complète avant les mots isolés. Diagnostic OCR et images conservés. TrOCR inchangé.
