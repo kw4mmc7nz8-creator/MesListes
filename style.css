@@ -233,3 +233,19 @@
 .editor:has(.keyboardPanel) .editorSpace{flex:1 0 118px;min-height:118px}
 .editor:has(.keyboardPanel) .keyboardPanel{flex:0 1 170px;height:170px;min-height:100px}
 @media(max-height:620px){.editorHead{min-height:102px}.editorSpace,.editor:has(.keyboardPanel) .editorSpace{flex-basis:108px;min-height:108px}.editorSpace .cameraGroup>.iconButton{height:39px}.editorSpace .cameraGroup svg{width:37px;height:37px}.editorSpace .cameraLegend{font-size:12px}}
+
+/* V14 BIS — variable content density; V13 QUATER icons, labels and controls unchanged. */
+:root{--ml-content-font:18px;--ml-content-count:16px;--ml-content-row:53px;--ml-content-hand:52px;--ml-content-pad:9px}
+.items .item{min-height:var(--ml-content-row)}
+.items .item .name{font-size:var(--ml-content-font);padding:var(--ml-content-pad) 0;line-height:1.25}
+.items .item .number{font-size:var(--ml-content-count)}
+.items .item .typedNote{font-size:var(--ml-content-font);padding:var(--ml-content-pad) 0;line-height:1.25}
+.items .item .noteCanvas{height:var(--ml-content-hand)}
+.settingsTextSize{margin:20px 0 28px;padding:20px 0 4px;border-top:1px solid #e5eeee}
+.settingsTextSize h2{margin:0 0 8px}
+.settingsSizeHint{font-size:14px;line-height:1.4;color:#666;margin:0 0 16px}
+.settingsSizeLine{display:flex;align-items:center;gap:14px;color:var(--meslistes,#009c9e)}
+.settingsSizeSmall{font-size:15px}.settingsSizeLarge{font-size:27px}
+.settingsSizeSlider{flex:1;min-width:0;width:100%;accent-color:var(--meslistes,#009c9e);height:35px}
+.settingsSizeLabels{display:flex;justify-content:space-between;gap:8px;color:#777;font-size:12px;margin-top:2px}
+.settingsSizePreview{display:flex;align-items:center;margin-top:18px;padding:6px 10px;border:1px solid #e1e1e1;border-radius:7px;line-height:1.2;white-space:pre-wrap}

@@ -6,6 +6,21 @@ function getDeleteConfirmation(){try{return localStorage.getItem(DELETE_CONFIRM_
 let confirmSingleNoteDeletion=getDeleteConfirmation();
 function getDefaultEntryMode(){try{return localStorage.getItem(SETTINGS_KEY)==='keyboard'?'keyboard':'hand'}catch(e){return 'hand'}}
 let defaultEntryMode=getDefaultEntryMode();
+// Display density: affects list content only, never application commands or legends.
+const TEXT_SIZE_KEY='MesListesContentSizeV14Bis';
+const MIN_TEXT_SIZE=14, MAX_TEXT_SIZE=24, DEFAULT_TEXT_SIZE=18;
+function readTextSize(){try{const n=Number(localStorage.getItem(TEXT_SIZE_KEY));return Number.isFinite(n)&&n>=MIN_TEXT_SIZE&&n<=MAX_TEXT_SIZE?n:DEFAULT_TEXT_SIZE}catch(e){return DEFAULT_TEXT_SIZE}}
+let contentTextSize=readTextSize();
+function applyTextSize(){
+ const n=contentTextSize;
+ document.documentElement.style.setProperty('--ml-content-font',n+'px');
+ document.documentElement.style.setProperty('--ml-content-count',Math.max(13,n-2)+'px');
+ document.documentElement.style.setProperty('--ml-content-row',Math.round(n*2.65+5)+'px');
+ document.documentElement.style.setProperty('--ml-content-hand',Math.round(n*2.9)+'px');
+ document.documentElement.style.setProperty('--ml-content-pad',Math.max(6,Math.round(n*.48))+'px');
+}
+applyTextSize();
+
 // Keep the editor inside the iPhone's visible viewport when the native keyboard opens.
 function syncVisibleViewport(){
  const v=window.visualViewport;
@@ -46,6 +61,18 @@ function renderSettings(){
  const delSwitch=B('',()=>{const next=!confirmSingleNoteDeletion;try{localStorage.setItem(DELETE_CONFIRM_KEY,String(next));confirmSingleNoteDeletion=next;delSwitch.setAttribute('aria-checked',String(next));delSwitch.classList.toggle('isOn',next)}catch(e){alert('Impossible d’enregistrer ce réglage sur cet appareil.')}},'settingsSwitch'+(confirmSingleNoteDeletion?' isOn':''));
  delSwitch.setAttribute('role','switch');delSwitch.setAttribute('aria-label','Confirmation de suppression individuelle');delSwitch.setAttribute('aria-checked',String(confirmSingleNoteDeletion));delSwitch.append(E('span','settingsSwitchThumb'));delRow.append(delText,delSwitch);
  main.append(delRow,E('p','settingsDeleteHint','Désactivé par défaut : les notes supprimées individuellement ne demandent pas confirmation. La suppression via Éditer demande toujours confirmation.'));
+ const sizeBlock=E('section','settingsTextSize');
+ const sizeTitle=E('h2','','Taille des caractères');
+ const sizeHint=E('p','settingsSizeHint','Le réglage agit sur les titres de listes, les notes et la hauteur de leurs lignes, sans modifier les icônes ni leurs légendes.');
+ const sizeLine=E('div','settingsSizeLine');
+ const smallA=E('span','settingsSizeSmall','A'),largeA=E('span','settingsSizeLarge','A');
+ const range=E('input','settingsSizeSlider');range.type='range';range.min=String(MIN_TEXT_SIZE);range.max=String(MAX_TEXT_SIZE);range.step='1';range.value=String(contentTextSize);range.setAttribute('aria-label','Taille des caractères');
+ const preview=E('div','settingsSizePreview');
+ function updateSizePreview(){preview.style.fontSize=contentTextSize+'px';preview.style.minHeight=Math.round(contentTextSize*2.65+5)+'px';preview.textContent='Courses Crozon     [12]';}
+ range.oninput=()=>{contentTextSize=Number(range.value);applyTextSize();updateSizePreview();try{localStorage.setItem(TEXT_SIZE_KEY,String(contentTextSize))}catch(e){/* Setting remains usable for this session */}};
+ sizeLine.append(smallA,range,largeA);
+ const sizeLabels=E('div','settingsSizeLabels');sizeLabels.append(E('span','','Petite'),E('span','','Moyenne'),E('span','','Grande'));
+ sizeBlock.append(sizeTitle,sizeHint,sizeLine,sizeLabels,preview);updateSizePreview();main.append(sizeBlock);
  const about=B('À propos',showAbout,'settingsAbout');about.append(icon('back'));main.append(about);app.append(main);
 }
 function toggleEdit(){editing=!editing;selected.clear();render()}
