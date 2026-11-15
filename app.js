@@ -54,14 +54,14 @@ function footer(){
 // Group typed grocery items without adding headings. Unknown items stay at the end.
 // Handwritten notes are preserved exactly; no remote OCR service is configured.
 const groceryGroups=[
- ['fruits-legumes','pomme poire banane orange citron fraise framboise raisin kiwi ananas mangue melon pasteque avocat tomate carotte salade laitue concombre courgette aubergine poivron oignon ail pomme-de-terre patate brocoli chou champignon epinard poireau haricot radis navet betterave endive celeri fenouil peche abricot prune cerise mandarine clementine pamplemousse myrtille'],
- ['boulangerie','pain baguette croissant brioche biscotte viennoiserie pain-de-mie tortilla sandwich'],
- ['frais','lait beurre yaourt yogourt fromage camembert emmental comte mozzarella creme oeuf oeufs jambon lardon poulet steak viande poisson saumon tofu dinde boeuf porc crevette thon sardine crevette ricotta feta parmesan cheddar fromage-blanc skyr'],
+ ['fruits-legumes','pomme poire banane orange citron fraise framboise raisin kiwi ananas mangue melon pasteque avocat tomate carotte salade laitue concombre courgette aubergine poivron oignon ail pomme-de-terre patate brocoli chou champignon epinard poireau haricot'],
+ ['boulangerie','pain baguette croissant brioche biscotte viennoiserie'],
+ ['frais','lait beurre yaourt yogourt fromage camembert emmental comte mozzarella creme oeuf oeufs jambon lardon poulet steak viande poisson saumon tofu'],
  ['surgeles','surgele glace sorbet pizza-surgele frites-surgele'],
- ['epicerie','riz pate pates spaghetti farine sucre sel poivre huile vinaigre cafe the chocolat biscuit cereale confiture miel conserve lentille semoule ketchup moutarde mayonnaise pesto nouille pois-chiche pois-casse tomate-concentree puree'],
- ['boissons','eau jus soda limonade sirop tisane eau-gazeuse'],
- ['entretien','lessive detergent liquide-vaisselle eponge nettoyant javel adoucissant sac-poubelle papier-menage sopalin essuie-tout nettoyant-vitres'],
- ['hygiene','shampoing shampooing savon dentifrice brosse-a-dents deodorant gel-douche papier-toilette mouchoir coton rasoir apres-shampoing brosse-dents creme-hydratante']
+ ['epicerie','riz pate pates spaghetti farine sucre sel poivre huile vinaigre cafe the chocolat biscuit cereale confiture miel conserve lentille semoule'],
+ ['boissons','eau jus soda limonade sirop'],
+ ['entretien','lessive detergent liquide-vaisselle eponge nettoyant javel adoucissant sac-poubelle'],
+ ['hygiene','shampoing shampooing savon dentifrice brosse-a-dents deodorant gel-douche papier-toilette mouchoir']
 ];
 function normalizedWords(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/[^a-z0-9-]+/g,' ').trim().split(/\s+/)}
 function groceryGroup(note){
@@ -73,222 +73,17 @@ function groceryGroup(note){
  }
  return groceryGroups.length;
 }
-// V13test4: conservative, local product matching, independent from TrOCR.
-const productAliases={
- banana:'banane',bananas:'banane',bananes:'banane',apples:'pomme',apple:'pomme',
- shampoo:'shampoing',shampooing:'shampoing',shampoings:'shampoing',
- shampvoing:'shampoing',shamering:'shampoing',shampoinry:'shampoing',
- pommes:'pomme',salades:'salade',
-  pormes:'pomme',pomnes:'pomme',pomes:'pomme',pomrne:'pomme',
-  bananna:'banane',banannae:'banane',banannaes:'banane',
-  shampvoing:'shampoing',shampoin:'shampoing',shampoign:'shampoing',
-  shampooing:'shampoing',shampoings:'shampoing',
-  carrots:'carotte',carottes:'carotte',tomatoes:'tomate',tomates:'tomate',
-  milk:'lait',bread:'pain',butter:'beurre',eggs:'oeuf',
-  lettuce:'salade',cheese:'fromage',rice:'riz',pasta:'pate'
-};
-const productTerms=(()=>{
- const terms=new Map();
- for(let i=0;i<groceryGroups.length;i++){
-  for(const word of groceryGroups[i][1].split(' ')){
-   terms.set(word,{product:word,group:i});
-   if(word.length>=5)terms.set(word+'s',{product:word,group:i});
-  }
- }
- for(const [alias,product] of Object.entries(productAliases)){
-  const found=terms.get(product);
-  if(found)terms.set(alias,{product,group:found.group});
- }
- return terms;
-})();
-function normalizeProduct(raw){
- return (raw||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
- .replace(/[’']/g,' ').replace(/[^a-z0-9-]+/g,' ').trim().replace(/\s+/g,' ');
-}
-function productEditDistance(a,b){
- let row=Array.from({length:b.length+1},(_,i)=>i);
- for(let i=1;i<=a.length;i++){
-  const next=[i];
-  for(let j=1;j<=b.length;j++)next[j]=Math.min(next[j-1]+1,row[j]+1,row[j-1]+(a[i-1]===b[j-1]?0:1));
-  row=next;
- }
- return row[b.length];
-}
-function identifyProduct(raw){
- const clean=normalizeProduct(raw);
- if(!clean)return null;
- const tokens=[clean,...clean.split(' ')];
- for(const token of tokens){
-  const exact=productTerms.get(token);
-  if(exact)return {...exact,method:token===exact.product?'exact':'variante'};
- }
- // Conservative fuzzy correction: do not guess from very short or unrelated words.
- let best=null,runnerUp=null;
- for(const token of tokens){
-  if(token.length<6||token.length>20)continue;
-  for(const [term,entry] of productTerms){
-   if(term[0]!==token[0]||Math.abs(term.length-token.length)>2)continue;
-   const distance=productEditDistance(token,term);
-   if(distance>2)continue;
-   const hit={...entry,distance,term};
-   if(!best||distance<best.distance){runnerUp=best;best=hit}
-   else if(!runnerUp||distance<runnerUp.distance)runnerUp=hit;
-  }
- }
- if(!best)return null;
- // Require a clear winner: avoid forcing a guess for an unrelated word.
- if(best.distance===2 && best.term.length<=6)return null;
- // Ties across distinct product families must remain unclassified.
- if(runnerUp&&runnerUp.distance===best.distance&&runnerUp.group!==best.group)return null;
- return {product:best.product,group:best.group,method:'correction'};
-}
-// V13test1 — TrOCR Small Handwritten, the same model as the successful laboratory.
-// The user's original strokes, text, and photographs are never changed.
-let trocrPipe=null,trocrLoading=null,sorting=false;
-const SORT_TIMEOUT_MS=180000;
-function sortStatus(message){
- const existing=document.querySelector('#sortStatus');
- if(existing){existing.querySelector('.sortStatusText').textContent=message;return existing}
- const cover=E('div','sortStatusOverlay');cover.id='sortStatus';
- cover.setAttribute('role','status');cover.setAttribute('aria-live','polite');
- const panel=E('div','sortStatusPanel');
- const spinner=E('div','sortHourglass');spinner.textContent='⌛';spinner.setAttribute('aria-hidden','true');
- panel.append(spinner,E('strong','sortStatusTitle','Tri par rayon en cours…'),E('p','sortStatusText',message));
- cover.append(panel);document.body.append(cover);return cover;
-}
-function sortNotice(message){
- const cover=E('div','modal'),panel=E('div','dialog');
- panel.append(E('strong','',message));
- panel.append(B('OK',()=>cover.remove(),'sortNoticeOK'));
- cover.append(panel);document.body.append(cover);
-}
-async function getTrOCR(){
- if(trocrPipe)return trocrPipe;
- if(!trocrLoading)trocrLoading=(async()=>{
-  sortStatus('Chargement de la bibliothèque de reconnaissance…');
-  const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1');
-  env.allowLocalModels=false;
-  sortStatus('Téléchargement et initialisation du modèle TrOCR…');
-  return await pipeline('image-to-text','Xenova/trocr-small-handwritten',{
-   device:'wasm',dtype:'q8',
-   progress_callback:p=>{
-    if(p.status==='progress'&&Number.isFinite(p.progress))sortStatus('Téléchargement du modèle : '+Math.round(p.progress)+' %');
-    else if(p.status==='initiate')sortStatus('Téléchargement des composants…');
-   }
-  });
- })().then(pipe=>(trocrPipe=pipe,pipe)).catch(err=>{trocrLoading=null;throw err});
- return trocrLoading;
-}
-// Reproduce the laboratory's 512 x 160 crop, stroke thickness and centering.
-function handwritingImage(note){
- const strokes=(note.strokes||[]).filter(st=>st?.length);
- const xFactor=note.coordinateVersion===3?1:0.46;
- const all=strokes.flat().filter(pt=>Number.isFinite(pt.x)&&Number.isFinite(pt.y));
- if(!all.length)return null;
- const minx=Math.min(...all.map(pt=>pt.x*xFactor)),maxx=Math.max(...all.map(pt=>pt.x*xFactor));
- const miny=Math.min(...all.map(pt=>pt.y)),maxy=Math.max(...all.map(pt=>pt.y));
- const w=Math.max(1,maxx-minx),h=Math.max(1,maxy-miny);
- const out=document.createElement('canvas');out.width=512;out.height=160;
- const c=out.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,512,160);
- const scale=Math.min(460/w,100/h),ox=(512-w*scale)/2,oy=(160-h*scale)/2;
- c.strokeStyle='#111';c.lineWidth=Math.max(2,2.8*scale);c.lineCap='round';c.lineJoin='round';
- for(const st of strokes){
-  c.beginPath();let first=true;
-  for(const pt of st){
-   if(!Number.isFinite(pt.x)||!Number.isFinite(pt.y))continue;
-   const x=ox+(pt.x*xFactor-minx)*scale,y=oy+(pt.y-miny)*scale;
-   if(first){c.moveTo(x,y);first=false}else c.lineTo(x,y);
-  }
-  if(st.length===1)c.lineTo(ox+(st[0].x*xFactor-minx)*scale+.2,oy+(st[0].y-miny)*scale+.2);
-  c.stroke();
- }
- return out.toDataURL('image/png');
-}
-function ocrDiagnostic(rows,classified,changed){
- const body=E('div','ocrDiagnostic');
- body.append(E('p','','Résultat de la reconnaissance manuscrite (TrOCR) :'));
- for(const row of rows){
-  const item=E('div','ocrDiagnosticItem');
-  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.product?' → '+row.product:''}${row.category?' — '+row.category:''}${row.method?' ('+row.method+')':''}`));
-  if(row.image){
-   const preview=E('img','ocrDiagnosticImage');
-   preview.src=row.image;
-   preview.alt=`Image exacte envoyée à TrOCR pour la note ${row.number}`;
-   preview.width=512;preview.height=160;
-   item.append(preview);
-  }
-  body.append(item);
- }
- if(!classified)body.append(E('p','ocrDiagnosticWarning','Aucun produit reconnu et classé. Le tri n’a pas été effectué.'));
- else body.append(E('p','',changed?'Les notes reconnues ont été classées.':'Aucun déplacement nécessaire pour les notes reconnues.'));
- modal('Diagnostic du tri par rayon',[['OK',close=>close()]],body);
-}
-async function runSort(target,notes,signal){
- const handwriting=notes.filter(n=>!n.text?.trim()&&n.strokes?.some(st=>st.length));
- const recognized=new Map(),rows=[];
- if(handwriting.length){
-  const recognizer=await getTrOCR();
-  if(signal.aborted)throw Error('Tri interrompu');
-  for(let i=0;i<handwriting.length;i++){
-   if(signal.aborted)throw Error('Tri interrompu');
-   sortStatus(`Reconnaissance manuscrite : ${i+1} / ${handwriting.length}`);
-   const note=handwriting[i],img=handwritingImage(note);
-   if(!img){rows.push({number:i+1,value:'',category:'',image:null});continue}
-   const output=await recognizer(img,{max_new_tokens:40});
-   if(signal.aborted)throw Error('Tri interrompu');
-   const raw=(output?.[0]?.generated_text||'').replace(/\s+/g,' ').trim();
-   const match=identifyProduct(raw);
-   rows.push({number:i+1,value:raw,product:match?.product||'',method:match?.method||'',category:match?groceryGroups[match.group][0]:'',image:img});
-   recognized.set(note.id,match?.product||'');
-  }
- }
- if(signal.aborted)throw Error('Tri interrompu');
- sortStatus('Classement des produits…');
- const classified=notes.filter(n=>identifyProduct(n.text?.trim()||recognized.get(n.id)||'')!==null).length;
- if(!classified)return {rows,classified,changed:false};
- const previous=[...notes];
- const sorted=previous.map((note,index)=>({note,index,group:identifyProduct(note.text?.trim()||recognized.get(note.id)||'')?.group??groceryGroups.length}))
-  .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
- const changed=!sorted.every((n,i)=>n===previous[i]);
- if(changed){
-  if(list()!==target||signal.aborted)throw Error('La liste a changé ou le tri a expiré');
-  notes.splice(0,notes.length,...sorted);
-  try{await persist();selected.clear();render()}
-  catch(e){notes.splice(0,notes.length,...previous);throw e}
- }
- return {rows,classified,changed};
-}
 async function sortByAisle(){
- if(sorting)return;
- const target=list();if(!target)return;
- const notes=target.notes;
- if(notes.length<2){sortNotice('Ajoutez au moins deux notes pour effectuer un tri.');return}
- sorting=true;
- const button=document.querySelector('.sortByAisle');if(button)button.disabled=true;
- const signal={aborted:false};
- sortStatus('Préparation du classement…');
- await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
- let timeoutId;
- try{
-  const result=await Promise.race([
-   runSort(target,notes,signal),
-   new Promise((_,reject)=>{timeoutId=setTimeout(()=>{signal.aborted=true;reject(Error('Délai de reconnaissance dépassé'))},SORT_TIMEOUT_MS)})
-  ]);
-  document.querySelector('#sortStatus')?.remove();
-  if(result.rows.length)ocrDiagnostic(result.rows,result.classified,result.changed);
-  else sortNotice(result.changed?'Tri par rayon terminé.':'Aucun changement nécessaire.');
- }catch(e){
-  signal.aborted=true;
-  console.warn('TrOCR indisponible',e);
-  document.querySelector('#sortStatus')?.remove();
-  sortNotice('Tri par rayon actuellement indisponible.');
- }finally{
-  clearTimeout(timeoutId);sorting=false;
-  document.querySelector('#sortStatus')?.remove();
-  if(button?.isConnected)button.disabled=false;
- }
+ const notes=list().notes;
+ if(notes.length<2)return;
+ const previous=[...notes];
+ const sorted=previous.map((note,index)=>({note,index,group:groceryGroup(note)}))
+   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
+ if(sorted.every((n,i)=>n===previous[i]))return;
+ notes.splice(0,notes.length,...sorted);
+ try{await persist();selected.clear();render()}
+ catch(e){notes.splice(0,notes.length,...previous)}
 }
-
 function render(){app.replaceChildren();if(page==='editor')return renderEditor();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
 if(page==='home'){row.append(B(v.name,()=>{current=v.id;page='detail';editing=false;selected.clear();render()},'name'),E('span','number','['+v.notes.length+']'))}else{const c=E('canvas','noteCanvas');row.append(c);if(v.text){c.style.display='none';row.append(E('span','typedNote',v.text))}else requestAnimationFrame(()=>drawNote(c,v.strokes,v.coordinateVersion));if(v.photos?.length){const thumb=B('',()=>viewPhotos(v.photos),'photoThumb');const im=E('img');im.src=v.photos[0];im.alt='Première photo de la note';im.loading='lazy';thumb.append(im);row.append(thumb)}}
 if(editing){const handle=E('span','handle','☰');row.append(handle);sortable(handle,wrap,arr,i,area)}else{const del=B('Supprimer',()=>removeConfirm(page==='home'?'cette liste':'cette note',async()=>{const removed=arr.splice(i,1);try{await persist()}catch(e){arr.splice(i,0,...removed);throw e}}),'swipeDelete');wrap.append(del);swipe(row)}wrap.append(row);area.append(wrap)});if(!arr.length)area.append(E('p','empty',page==='home'?'Appuyez sur + pour créer une liste.':'Aucune note. Appuyez sur + pour écrire.'));app.append(area,footer())}

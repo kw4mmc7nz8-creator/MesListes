@@ -18,36 +18,4 @@ Après publication, ouvrez l'application une fois avec une bonne connexion afin 
 Testez le comportement sur votre iPhone avant d'utiliser le tri sur vos listes importantes.
 
 
-V12TEST1 — ESSAI RECONNAISSANCE MANUSCRITE
-Le bouton Tri par rayon expérimente Tesseract.js 5.1.1 en français.
-Le premier tri contenant des notes manuscrites télécharge le moteur et le modèle de langue depuis Internet. Le traitement OCR s'effectue ensuite sur l'iPhone, sans envoi de vos notes à un service OCR.
-Cette technologie n'est pas spécialisée dans l'écriture manuscrite : elle peut mal reconnaître les mots. Les mots inconnus restent à la fin de la liste.
-Si le moteur ne peut pas se charger ou échoue, l'application affiche « Tri par rayon actuellement indisponible. » et ne modifie pas l'ordre de la liste.
-Conservez une sauvegarde de vos listes avant d'installer cette version de test.
-
-
-V12test2 : indicateur de progression animé dès le clic sur Tri par rayon,
-messages de fin même si aucun déplacement n'est possible, délai maximum de 45 s,
-message d'indisponibilité si le moteur OCR échoue.
-Le moteur OCR Tesseract.js reste expérimental et nécessite Internet au premier chargement.
-
-V12test3 : diagnostic OCR indiquant pour chaque note manuscrite le texte réellement lu et sa catégorie éventuelle. Si aucune note n'est reconnue, la liste ne bouge pas. Échec du moteur : « Tri par rayon actuellement indisponible. »
-
-
-V13test1 — moteur TrOCR Small Handwritten, identique au laboratoire réussi.
-Le modèle est téléchargé au premier tri manuscrit, puis reconnaissance locale dans Safari.
-Premier chargement potentiellement long. Sablier et diagnostic mot par mot.
-Délai maximal 180 secondes. En cas d'échec : « Tri par rayon actuellement indisponible. »
-La V12 reste la version stable. Sauvegardez les listes avant tout essai.
-
-V13test2 : correction approximative locale des noms de produits après TrOCR.
-Le diagnostic montre le texte brut et, si applicable, la correction utilisée.
-Les mots non reconnus restent à la fin. La reconnaissance reste expérimentale.
-
-V13test3 : diagnostic visuel. Chaque résultat OCR montre exactement l'image PNG 512×160 pixels envoyée à TrOCR. Faire défiler la fenêtre de diagnostic pour voir toutes les notes. Aucune modification du moteur ni du tri dans cette version.
-
-V13test4 : classement amélioré avec variantes anglaises et petites erreurs OCR. Diagnostic : transcription → produit → rayon, avec image originale envoyée au moteur. Les notes originales ne sont pas modifiées.
-
-V13test5 : dictionnaire élargi, variantes et corrections locales prudentes. Diagnostic conservé (mot OCR, correction, rayon, méthode, image). Les mots ambigus restent non classés.
-
-V13test6 : prise en charge des noms composés (papier toilette, liquide vaisselle, gel douche, etc.). Recherche de l'expression complète avant les mots isolés. Diagnostic OCR et images conservés. TrOCR inchangé.
+Version stable V12 — Tri clavier uniquement : le bouton Tri par rayon apparaît dans Éditer seulement si toutes les notes de la liste sont saisies au clavier. Aucune reconnaissance manuscrite. Le tri est local et conserve le contenu des notes.

@@ -170,22 +170,3 @@
 .footer>.sortByAisle{order:-1;margin-left:0;margin-right:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--meslistes);background:transparent;padding:3px 0;min-width:72px}
 .footer>.sortByAisle .icon svg{width:31px;height:31px}
 .footer>.sortByAisle .sortLabel{font-size:clamp(11px,3.1vw,14px);white-space:nowrap}
-
-/* V12test2: visible progress even when recognition is slow or unavailable. */
-.sortStatusOverlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center;padding:20px}
-.sortStatusPanel{width:min(340px,100%);background:white;border-radius:18px;padding:24px 18px;text-align:center;box-shadow:0 8px 32px #0002;display:flex;flex-direction:column;align-items:center;gap:12px}
-.sortHourglass{font-size:44px;line-height:1.2;display:block;animation:sortHourglassTurn 1.8s ease-in-out infinite}
-.sortStatusTitle{font-size:17px;color:var(--meslistes)}
-.sortStatusText{margin:0;color:#555;font-size:14px}
-@keyframes sortHourglassTurn{0%,15%{transform:rotate(0)}50%,65%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.sortHourglass{animation:none}}
-.sortNoticeOK{margin:18px auto 0;display:block;color:var(--meslistes);background:transparent;border:1px solid currentColor;border-radius:8px;padding:8px 26px;font-size:16px}
-
-/* V12test3: readable OCR diagnostic */
-.ocrDiagnostic{text-align:left;max-height:48vh;overflow-y:auto;line-height:1.4;font-size:15px}.ocrDiagnosticRow{padding:7px 0;border-bottom:1px solid #e8e8e8;overflow-wrap:anywhere}.ocrDiagnosticWarning{font-weight:600;margin-top:12px}
-
-/* V13test3: show the exact PNG image sent to TrOCR for every handwritten note. */
-.ocrDiagnosticItem{margin:10px 0 18px}
-.ocrDiagnosticImage{display:block;width:100%;height:auto;aspect-ratio:512/160;object-fit:contain;background:white;border:1px solid #cfd6d6;border-radius:5px;box-sizing:border-box}
-.ocrDiagnosticItem .ocrDiagnosticRow{margin:0 0 8px}
-.ocrDiagnostic{max-height:57vh}
