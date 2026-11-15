@@ -43,3 +43,5 @@ La V12 reste la version stable. Sauvegardez les listes avant tout essai.
 V13test2 : correction approximative locale des noms de produits après TrOCR.
 Le diagnostic montre le texte brut et, si applicable, la correction utilisée.
 Les mots non reconnus restent à la fin. La reconnaissance reste expérimentale.
+
+V13test3 : diagnostic visuel. Chaque résultat OCR montre exactement l'image PNG 512×160 pixels envoyée à TrOCR. Faire défiler la fenêtre de diagnostic pour voir toutes les notes. Aucune modification du moteur ni du tri dans cette version.

@@ -183,3 +183,9 @@
 
 /* V12test3: readable OCR diagnostic */
 .ocrDiagnostic{text-align:left;max-height:48vh;overflow-y:auto;line-height:1.4;font-size:15px}.ocrDiagnosticRow{padding:7px 0;border-bottom:1px solid #e8e8e8;overflow-wrap:anywhere}.ocrDiagnosticWarning{font-weight:600;margin-top:12px}
+
+/* V13test3: show the exact PNG image sent to TrOCR for every handwritten note. */
+.ocrDiagnosticItem{margin:10px 0 18px}
+.ocrDiagnosticImage{display:block;width:100%;height:auto;aspect-ratio:512/160;object-fit:contain;background:white;border:1px solid #cfd6d6;border-radius:5px;box-sizing:border-box}
+.ocrDiagnosticItem .ocrDiagnosticRow{margin:0 0 8px}
+.ocrDiagnostic{max-height:57vh}

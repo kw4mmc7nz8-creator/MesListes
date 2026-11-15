@@ -139,7 +139,16 @@ function ocrDiagnostic(rows,classified,changed){
  const body=E('div','ocrDiagnostic');
  body.append(E('p','','Résultat de la reconnaissance manuscrite (TrOCR) :'));
  for(const row of rows){
-  body.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.category?' — '+row.category:''}`));
+  const item=E('div','ocrDiagnosticItem');
+  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.category?' — '+row.category:''}`));
+  if(row.image){
+   const preview=E('img','ocrDiagnosticImage');
+   preview.src=row.image;
+   preview.alt=`Image exacte envoyée à TrOCR pour la note ${row.number}`;
+   preview.width=512;preview.height=160;
+   item.append(preview);
+  }
+  body.append(item);
  }
  if(!classified)body.append(E('p','ocrDiagnosticWarning','Aucun produit reconnu et classé. Le tri n’a pas été effectué.'));
  else body.append(E('p','',changed?'Les notes reconnues ont été classées.':'Aucun déplacement nécessaire pour les notes reconnues.'));
@@ -155,12 +164,12 @@ async function runSort(target,notes,signal){
    if(signal.aborted)throw Error('Tri interrompu');
    sortStatus(`Reconnaissance manuscrite : ${i+1} / ${handwriting.length}`);
    const note=handwriting[i],img=handwritingImage(note);
-   if(!img){rows.push({number:i+1,value:'',category:''});continue}
+   if(!img){rows.push({number:i+1,value:'',category:'',image:null});continue}
    const output=await recognizer(img,{max_new_tokens:40});
    if(signal.aborted)throw Error('Tri interrompu');
    const raw=(output?.[0]?.generated_text||'').replace(/\s+/g,' ').trim();
    const group=groceryGroup({text:raw});
-   rows.push({number:i+1,value:raw,category:group<groceryGroups.length?groceryGroups[group][0]:''});
+   rows.push({number:i+1,value:raw,category:group<groceryGroups.length?groceryGroups[group][0]:'',image:img});
    recognized.set(note.id,group<groceryGroups.length?raw:'');
   }
  }
