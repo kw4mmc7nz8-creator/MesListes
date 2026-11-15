@@ -1,4 +1,4 @@
-const CACHE='meslistes-v13-bis-20261115';
+const CACHE='meslistes-v13-ter-20261115';
 const ASSETS=['./','./index.html','./style.css','./app.js','./logo-original.png','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('meslistes-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

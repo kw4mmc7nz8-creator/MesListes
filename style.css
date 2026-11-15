@@ -200,3 +200,24 @@
 .settingsSwitch.isOn .settingsSwitchThumb{transform:translateX(23px)}
 .settingsSwitch:focus-visible{outline:3px solid #007e80;outline-offset:3px}
 .settingsDeleteHint{font-size:14px;line-height:1.45;color:#666;margin:4px 0 28px}
+
+/* V13 ter: link/photo editor controls */
+.editorHead{min-height:112px;align-items:flex-start;justify-content:space-between}
+.linkGroup{display:flex;flex-direction:column;align-items:center;gap:3px;width:170px;max-width:52%;color:var(--meslistes,#009c9e)}
+.linkGroup .iconButton{color:var(--meslistes,#009c9e);height:43px;padding:2px}
+.linkGroup svg{width:37px;height:37px;stroke-width:2.3}
+.linkLegend{font-size:clamp(12px,3.4vw,16px);text-align:center;line-height:1.18;color:var(--meslistes,#009c9e)}
+.editorSpace{position:relative;display:flex;justify-content:flex-end;align-items:center;padding-right:12px}
+.editorSpace .cameraGroup{flex:none;width:165px;max-width:49%;color:var(--meslistes,#009c9e)}
+.editorSpace .cameraLegend{font-size:clamp(12px,3.5vw,16px);line-height:1.2;color:var(--meslistes,#009c9e)}
+.editorSpace .cameraGroup .iconButton{color:var(--meslistes,#009c9e)}
+.noteLinkButton{color:var(--meslistes,#009c9e);padding:4px;flex:none}
+.noteLinkButton svg{width:25px;height:25px}
+.linkPrompt{margin:0;font-size:16px}
+.linkPaste{align-self:flex-end;color:var(--meslistes,#009c9e);font-weight:600;padding:5px 10px}
+.linkInputLine{display:flex;align-items:center;gap:4px}
+.linkInputLine input{flex:1;min-width:0;width:100%;font-size:16px}
+.linkClear{color:var(--meslistes,#009c9e);font-size:26px;min-width:34px;height:38px}
+.linkActions{justify-content:space-between;align-items:center}
+.linkActions .linkValidate,.dialogActions .linkValidate{font-weight:700;color:var(--meslistes,#009c9e)}
+.linkAddress{overflow-wrap:anywhere}
