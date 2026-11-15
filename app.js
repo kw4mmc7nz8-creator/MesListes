@@ -73,6 +73,66 @@ function groceryGroup(note){
  }
  return groceryGroups.length;
 }
+// V13test4: conservative, local product matching, independent from TrOCR.
+const productAliases={
+ banana:'banane',bananas:'banane',bananes:'banane',apples:'pomme',apple:'pomme',
+ shampoo:'shampoing',shampooing:'shampoing',shampoings:'shampoing',
+ shampvoing:'shampoing',shamering:'shampoing',shampoinry:'shampoing',
+ pommes:'pomme',salades:'salade'
+};
+const productTerms=(()=>{
+ const terms=new Map();
+ for(let i=0;i<groceryGroups.length;i++){
+  for(const word of groceryGroups[i][1].split(' ')){
+   terms.set(word,{product:word,group:i});
+   if(word.length>=5)terms.set(word+'s',{product:word,group:i});
+  }
+ }
+ for(const [alias,product] of Object.entries(productAliases)){
+  const found=terms.get(product);
+  if(found)terms.set(alias,{product,group:found.group});
+ }
+ return terms;
+})();
+function normalizeProduct(raw){
+ return (raw||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+ .replace(/[’']/g,' ').replace(/[^a-z0-9-]+/g,' ').trim().replace(/\s+/g,' ');
+}
+function productEditDistance(a,b){
+ let row=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  const next=[i];
+  for(let j=1;j<=b.length;j++)next[j]=Math.min(next[j-1]+1,row[j]+1,row[j-1]+(a[i-1]===b[j-1]?0:1));
+  row=next;
+ }
+ return row[b.length];
+}
+function identifyProduct(raw){
+ const clean=normalizeProduct(raw);
+ if(!clean)return null;
+ const tokens=[clean,...clean.split(' ')];
+ for(const token of tokens){
+  const exact=productTerms.get(token);
+  if(exact)return {...exact,method:token===exact.product?'exact':'variante'};
+ }
+ // Conservative fuzzy correction: do not guess from very short or unrelated words.
+ let best=null,runnerUp=null;
+ for(const token of tokens){
+  if(token.length<6||token.length>20)continue;
+  for(const [term,entry] of productTerms){
+   if(term[0]!==token[0]||Math.abs(term.length-token.length)>2)continue;
+   const distance=productEditDistance(token,term);
+   if(distance>2)continue;
+   const hit={...entry,distance,term};
+   if(!best||distance<best.distance){runnerUp=best;best=hit}
+   else if(!runnerUp||distance<runnerUp.distance)runnerUp=hit;
+  }
+ }
+ if(!best)return null;
+ // Ties across distinct product families must remain unclassified.
+ if(runnerUp&&runnerUp.distance===best.distance&&runnerUp.group!==best.group)return null;
+ return {product:best.product,group:best.group,method:'correction'};
+}
 // V13test1 — TrOCR Small Handwritten, the same model as the successful laboratory.
 // The user's original strokes, text, and photographs are never changed.
 let trocrPipe=null,trocrLoading=null,sorting=false;
@@ -140,7 +200,7 @@ function ocrDiagnostic(rows,classified,changed){
  body.append(E('p','','Résultat de la reconnaissance manuscrite (TrOCR) :'));
  for(const row of rows){
   const item=E('div','ocrDiagnosticItem');
-  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.category?' — '+row.category:''}`));
+  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.product?' → '+row.product:''}${row.category?' — '+row.category:''}`));
   if(row.image){
    const preview=E('img','ocrDiagnosticImage');
    preview.src=row.image;
@@ -168,17 +228,17 @@ async function runSort(target,notes,signal){
    const output=await recognizer(img,{max_new_tokens:40});
    if(signal.aborted)throw Error('Tri interrompu');
    const raw=(output?.[0]?.generated_text||'').replace(/\s+/g,' ').trim();
-   const group=groceryGroup({text:raw});
-   rows.push({number:i+1,value:raw,category:group<groceryGroups.length?groceryGroups[group][0]:'',image:img});
-   recognized.set(note.id,group<groceryGroups.length?raw:'');
+   const match=identifyProduct(raw);
+   rows.push({number:i+1,value:raw,product:match?.product||'',category:match?groceryGroups[match.group][0]:'',image:img});
+   recognized.set(note.id,match?.product||'');
   }
  }
  if(signal.aborted)throw Error('Tri interrompu');
  sortStatus('Classement des produits…');
- const classified=notes.filter(n=>groceryGroup({text:n.text?.trim()||recognized.get(n.id)||''})<groceryGroups.length).length;
+ const classified=notes.filter(n=>identifyProduct(n.text?.trim()||recognized.get(n.id)||'')!==null).length;
  if(!classified)return {rows,classified,changed:false};
  const previous=[...notes];
- const sorted=previous.map((note,index)=>({note,index,group:groceryGroup({text:note.text?.trim()||recognized.get(note.id)||''})}))
+ const sorted=previous.map((note,index)=>({note,index,group:identifyProduct(note.text?.trim()||recognized.get(note.id)||'')?.group??groceryGroups.length}))
   .sort((a,b)=>a.group-b.group||a.index-b.index).map(x=>x.note);
  const changed=!sorted.every((n,i)=>n===previous[i]);
  if(changed){
