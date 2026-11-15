@@ -54,14 +54,14 @@ function footer(){
 // Group typed grocery items without adding headings. Unknown items stay at the end.
 // Handwritten notes are preserved exactly; no remote OCR service is configured.
 const groceryGroups=[
- ['fruits-legumes','pomme poire banane orange citron fraise framboise raisin kiwi ananas mangue melon pasteque avocat tomate carotte salade laitue concombre courgette aubergine poivron oignon ail pomme-de-terre patate brocoli chou champignon epinard poireau haricot'],
- ['boulangerie','pain baguette croissant brioche biscotte viennoiserie'],
- ['frais','lait beurre yaourt yogourt fromage camembert emmental comte mozzarella creme oeuf oeufs jambon lardon poulet steak viande poisson saumon tofu'],
+ ['fruits-legumes','pomme poire banane orange citron fraise framboise raisin kiwi ananas mangue melon pasteque avocat tomate carotte salade laitue concombre courgette aubergine poivron oignon ail pomme-de-terre patate brocoli chou champignon epinard poireau haricot radis navet betterave endive celeri fenouil peche abricot prune cerise mandarine clementine pamplemousse myrtille'],
+ ['boulangerie','pain baguette croissant brioche biscotte viennoiserie pain-de-mie tortilla sandwich'],
+ ['frais','lait beurre yaourt yogourt fromage camembert emmental comte mozzarella creme oeuf oeufs jambon lardon poulet steak viande poisson saumon tofu dinde boeuf porc crevette thon sardine crevette ricotta feta parmesan cheddar fromage-blanc skyr'],
  ['surgeles','surgele glace sorbet pizza-surgele frites-surgele'],
- ['epicerie','riz pate pates spaghetti farine sucre sel poivre huile vinaigre cafe the chocolat biscuit cereale confiture miel conserve lentille semoule'],
- ['boissons','eau jus soda limonade sirop'],
- ['entretien','lessive detergent liquide-vaisselle eponge nettoyant javel adoucissant sac-poubelle'],
- ['hygiene','shampoing shampooing savon dentifrice brosse-a-dents deodorant gel-douche papier-toilette mouchoir']
+ ['epicerie','riz pate pates spaghetti farine sucre sel poivre huile vinaigre cafe the chocolat biscuit cereale confiture miel conserve lentille semoule ketchup moutarde mayonnaise pesto nouille pois-chiche pois-casse tomate-concentree puree'],
+ ['boissons','eau jus soda limonade sirop tisane eau-gazeuse'],
+ ['entretien','lessive detergent liquide-vaisselle eponge nettoyant javel adoucissant sac-poubelle papier-menage sopalin essuie-tout nettoyant-vitres'],
+ ['hygiene','shampoing shampooing savon dentifrice brosse-a-dents deodorant gel-douche papier-toilette mouchoir coton rasoir apres-shampoing brosse-dents creme-hydratante']
 ];
 function normalizedWords(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ').replace(/[^a-z0-9-]+/g,' ').trim().split(/\s+/)}
 function groceryGroup(note){
@@ -78,7 +78,14 @@ const productAliases={
  banana:'banane',bananas:'banane',bananes:'banane',apples:'pomme',apple:'pomme',
  shampoo:'shampoing',shampooing:'shampoing',shampoings:'shampoing',
  shampvoing:'shampoing',shamering:'shampoing',shampoinry:'shampoing',
- pommes:'pomme',salades:'salade'
+ pommes:'pomme',salades:'salade',
+  pormes:'pomme',pomnes:'pomme',pomes:'pomme',pomrne:'pomme',
+  bananna:'banane',banannae:'banane',banannaes:'banane',
+  shampvoing:'shampoing',shampoin:'shampoing',shampoign:'shampoing',
+  shampooing:'shampoing',shampoings:'shampoing',
+  carrots:'carotte',carottes:'carotte',tomatoes:'tomate',tomates:'tomate',
+  milk:'lait',bread:'pain',butter:'beurre',eggs:'oeuf',
+  lettuce:'salade',cheese:'fromage',rice:'riz',pasta:'pate'
 };
 const productTerms=(()=>{
  const terms=new Map();
@@ -129,6 +136,8 @@ function identifyProduct(raw){
   }
  }
  if(!best)return null;
+ // Require a clear winner: avoid forcing a guess for an unrelated word.
+ if(best.distance===2 && best.term.length<=6)return null;
  // Ties across distinct product families must remain unclassified.
  if(runnerUp&&runnerUp.distance===best.distance&&runnerUp.group!==best.group)return null;
  return {product:best.product,group:best.group,method:'correction'};
@@ -200,7 +209,7 @@ function ocrDiagnostic(rows,classified,changed){
  body.append(E('p','','Résultat de la reconnaissance manuscrite (TrOCR) :'));
  for(const row of rows){
   const item=E('div','ocrDiagnosticItem');
-  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.product?' → '+row.product:''}${row.category?' — '+row.category:''}`));
+  item.append(E('p','ocrDiagnosticRow',`Note ${row.number} : ${row.value?'« '+row.value+' »':'non reconnue'}${row.product?' → '+row.product:''}${row.category?' — '+row.category:''}${row.method?' ('+row.method+')':''}`));
   if(row.image){
    const preview=E('img','ocrDiagnosticImage');
    preview.src=row.image;
@@ -229,7 +238,7 @@ async function runSort(target,notes,signal){
    if(signal.aborted)throw Error('Tri interrompu');
    const raw=(output?.[0]?.generated_text||'').replace(/\s+/g,' ').trim();
    const match=identifyProduct(raw);
-   rows.push({number:i+1,value:raw,product:match?.product||'',category:match?groceryGroups[match.group][0]:'',image:img});
+   rows.push({number:i+1,value:raw,product:match?.product||'',method:match?.method||'',category:match?groceryGroups[match.group][0]:'',image:img});
    recognized.set(note.id,match?.product||'');
   }
  }

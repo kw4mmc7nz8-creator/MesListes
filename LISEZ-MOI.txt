@@ -47,3 +47,5 @@ Les mots non reconnus restent à la fin. La reconnaissance reste expérimentale.
 V13test3 : diagnostic visuel. Chaque résultat OCR montre exactement l'image PNG 512×160 pixels envoyée à TrOCR. Faire défiler la fenêtre de diagnostic pour voir toutes les notes. Aucune modification du moteur ni du tri dans cette version.
 
 V13test4 : classement amélioré avec variantes anglaises et petites erreurs OCR. Diagnostic : transcription → produit → rayon, avec image originale envoyée au moteur. Les notes originales ne sont pas modifiées.
+
+V13test5 : dictionnaire élargi, variantes et corrections locales prudentes. Diagnostic conservé (mot OCR, correction, rayon, méthode, image). Les mots ambigus restent non classés.
