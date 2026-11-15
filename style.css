@@ -221,3 +221,15 @@
 .linkActions{justify-content:space-between;align-items:center}
 .linkActions .linkValidate,.dialogActions .linkValidate{font-weight:700;color:var(--meslistes,#009c9e)}
 .linkAddress{overflow-wrap:anywhere}
+
+/* V13 quater — keep editor actions separate when iOS keyboard reduces viewport */
+.editor{overflow-y:auto;overscroll-behavior:contain}
+.editorHead{flex:0 0 auto;min-height:112px}
+.editorSpace{flex:1 0 118px;min-height:118px;align-items:center;justify-content:flex-end;padding-right:14px}
+.editorSpace .cameraGroup{width:168px;max-width:52%;gap:3px}
+.editorSpace .cameraGroup>.iconButton{height:46px}
+.editorSpace .cameraLegend{font-size:clamp(12px,3.5vw,15px);line-height:1.17;max-width:170px}
+.entryControls{flex:0 0 auto;position:relative;z-index:1;background:#fff7f1;min-height:58px}
+.editor:has(.keyboardPanel) .editorSpace{flex:1 0 118px;min-height:118px}
+.editor:has(.keyboardPanel) .keyboardPanel{flex:0 1 170px;height:170px;min-height:100px}
+@media(max-height:620px){.editorHead{min-height:102px}.editorSpace,.editor:has(.keyboardPanel) .editorSpace{flex-basis:108px;min-height:108px}.editorSpace .cameraGroup>.iconButton{height:39px}.editorSpace .cameraGroup svg{width:37px;height:37px}.editorSpace .cameraLegend{font-size:12px}}
