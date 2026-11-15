@@ -39,3 +39,7 @@ Le modèle est téléchargé au premier tri manuscrit, puis reconnaissance local
 Premier chargement potentiellement long. Sablier et diagnostic mot par mot.
 Délai maximal 180 secondes. En cas d'échec : « Tri par rayon actuellement indisponible. »
 La V12 reste la version stable. Sauvegardez les listes avant tout essai.
+
+V13test2 : correction approximative locale des noms de produits après TrOCR.
+Le diagnostic montre le texte brut et, si applicable, la correction utilisée.
+Les mots non reconnus restent à la fin. La reconnaissance reste expérimentale.
