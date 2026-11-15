@@ -33,11 +33,9 @@ Le moteur OCR Tesseract.js reste expérimental et nécessite Internet au premier
 
 V12test3 : diagnostic OCR indiquant pour chaque note manuscrite le texte réellement lu et sa catégorie éventuelle. Si aucune note n'est reconnue, la liste ne bouge pas. Échec du moteur : « Tri par rayon actuellement indisponible. »
 
-V12test4 (expérimentale) : reconnaissance basée sur les tracés, sans OCR ni service externe.
-Le navigateur peut proposer une API native de reconnaissance (non garantie sur Safari iPhone).
-Sinon, le système compare les tracés avec des exemples que vous lui apprenez.
-Pour apprendre : dans une liste, Éditer > sélectionner UNE note manuscrite > Apprendre ce mot > saisir son nom (produit du dictionnaire) > Enregistrer.
-Recommencer avec plusieurs produits, puis Tri par rayon.
-L'apprentissage est conservé dans le stockage local du navigateur, sur cet appareil seulement, et ne fait pas partie des sauvegardes de listes.
-Sans exemples appris, il est normal que le tri manuscrit ne reconnaisse rien sur Safari.
-Les notes originales et leurs photos ne sont jamais transformées.
+
+V13test1 — moteur TrOCR Small Handwritten, identique au laboratoire réussi.
+Le modèle est téléchargé au premier tri manuscrit, puis reconnaissance locale dans Safari.
+Premier chargement potentiellement long. Sablier et diagnostic mot par mot.
+Délai maximal 180 secondes. En cas d'échec : « Tri par rayon actuellement indisponible. »
+La V12 reste la version stable. Sauvegardez les listes avant tout essai.
