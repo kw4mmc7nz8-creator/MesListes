@@ -19,3 +19,7 @@ Testez le comportement sur votre iPhone avant d'utiliser le tri sur vos listes i
 
 
 Version stable V12 — Tri clavier uniquement : le bouton Tri par rayon apparaît dans Éditer seulement si toutes les notes de la liste sont saisies au clavier. Aucune reconnaissance manuscrite. Le tri est local et conserve le contenu des notes.
+
+Correctif : le bouton Tri par rayon est masqué si la liste est vide ou si une note ne contient pas de texte clavier, y compris une note manuscrite ou photo seule. Le tri est également bloqué par sécurité dans ces cas.
+
+Correctif sélection des fichiers sur iPhone : import et restauration utilisent désormais un input attaché à la page jusqu'à la fin de lecture. Les fichiers JSON et les données ne changent pas.
