@@ -1,4 +1,4 @@
-const CACHE='meslistes-v12-settings-20261115';
+const CACHE='meslistes-v13-stable-20261115';
 const ASSETS=['./','./index.html','./style.css','./app.js','./logo-original.png','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('meslistes-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
@@ -8,6 +8,9 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   const cached=await cache.match(request,{ignoreSearch:true});
+  if(request.mode==='navigate'){
+   try{const response=await fetch(request);if(response.ok)await cache.put(request,response.clone());return response}catch(e){if(cached)return cached;throw e}
+  }
   if(cached)return cached;
   const response=await fetch(request);
   if(response.ok)await cache.put(request,response.clone());

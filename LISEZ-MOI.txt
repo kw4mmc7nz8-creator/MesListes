@@ -23,3 +23,18 @@ Version stable V12 — Tri clavier uniquement : le bouton Tri par rayon apparaî
 Correctif : le bouton Tri par rayon est masqué si la liste est vide ou si une note ne contient pas de texte clavier, y compris une note manuscrite ou photo seule. Le tri est également bloqué par sécurité dans ces cas.
 
 Correctif sélection des fichiers sur iPhone : import et restauration utilisent désormais un input attaché à la page jusqu'à la fin de lecture. Les fichiers JSON et les données ne changent pas.
+
+V13 — STABILISATION (15 novembre 2026)
+- Roue dentée blanche redessinée, plus grande, placée au bas du coin gauche du bandeau.
+- Paramètres : interrupteur « Confirmation de suppression », désactivé par défaut.
+  Désactivé : suppression immédiate d'une note par glissement. Activé : demande de confirmation.
+  Les suppressions groupées via Éditer et les suppressions de listes conservent leur confirmation.
+- Préférence de confirmation enregistrée localement ; choix de saisie par défaut conservé.
+- Amélioration des messages d'erreur lors de la suppression.
+- Service worker : nouvelle version du cache et vérification réseau des navigations,
+  avec repli hors ligne. Les autres ressources restent utilisables hors ligne.
+- Aucun changement du format de stockage IndexedDB, des sauvegardes JSON ou des listes partagées.
+
+IMPORTANT : faire une sauvegarde de vos listes avant de remplacer les fichiers sur GitHub Pages.
+Après mise à jour, ouvrir l'application en ligne pour charger la V13, puis vérifier son
+fonctionnement sur iPhone. Les tests de syntaxe ne remplacent pas les essais sur appareil.

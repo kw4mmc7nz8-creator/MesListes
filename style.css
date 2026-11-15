@@ -189,3 +189,14 @@
 .settingsAbout svg{width:20px;height:20px}
 .aboutText{font-size:17px;line-height:1.5;margin:0}
 @media(max-width:375px){.homeTop .settingsHome{left:1px;width:40px}.homeTop .settingsHome svg{width:25px;height:25px}}
+
+/* V13 : settings gear lower left, larger white icon, aligned with banner bottom */
+.homeTop .settingsHome{left:0!important;top:auto!important;bottom:2px!important;transform:none!important;width:49px;height:49px;padding:5px;color:#fff}
+.homeTop .settingsHome svg{width:34px;height:34px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.settingsDeleteRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:25px;font-size:17px;font-weight:600;min-height:55px}
+.settingsSwitch{position:relative;width:57px;height:34px;min-width:57px;background:#d1d5db;border-radius:20px;padding:3px;transition:background .16s ease}
+.settingsSwitch.isOn{background:#2cc653}
+.settingsSwitchThumb{display:block;width:28px;height:28px;background:white;border-radius:50%;box-shadow:0 1px 3px #0002;transform:translateX(0);transition:transform .16s ease}
+.settingsSwitch.isOn .settingsSwitchThumb{transform:translateX(23px)}
+.settingsSwitch:focus-visible{outline:3px solid #007e80;outline-offset:3px}
+.settingsDeleteHint{font-size:14px;line-height:1.45;color:#666;margin:4px 0 28px}
