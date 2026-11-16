@@ -249,3 +249,11 @@
 .settingsSizeSlider{flex:1;min-width:0;width:100%;accent-color:var(--meslistes,#009c9e);height:35px}
 .settingsSizeLabels{display:flex;justify-content:space-between;gap:8px;color:#777;font-size:12px;margin-top:2px}
 .settingsSizePreview{display:flex;align-items:center;margin-top:18px;padding:6px 10px;border:1px solid #e1e1e1;border-radius:7px;line-height:1.2;white-space:pre-wrap}
+
+/* V14 TER : bandeau d'accueil sobre, sans logo, titre centre dans le bandeau.
+   Boutons inverses : importation a gauche, parametres a droite. */
+.homeTop{position:relative;display:flex;align-items:center;justify-content:center;padding:0!important}
+.homeTop .brandTitle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;white-space:nowrap;z-index:1}
+.homeTop .importHome{position:absolute;left:2px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);width:104px;height:67px;z-index:2}
+.homeTop .settingsHome{position:absolute;right:0!important;left:auto!important;top:auto!important;bottom:2px!important;transform:none!important;z-index:3}
+@media(max-width:375px){.homeTop .importHome{left:1px;right:auto;width:88px}.homeTop .brandTitle{font-size:20px}}
