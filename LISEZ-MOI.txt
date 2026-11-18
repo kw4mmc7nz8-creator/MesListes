@@ -1,40 +1,26 @@
-MesListes V12 — version de test (14 novembre 2026)
+MesListes V15 — 18 novembre 2026
 
-Base : MesListes V11. Les données IndexedDB existantes ne sont pas effacées.
+Base : V14 TER. Toutes les données locales et fonctionnalités sont conservées.
 
-Nouveautés :
-- Démarrage prioritaire depuis le cache local après installation et mise en cache initiale.
-- Dans une liste, mode Éditer : bouton « Tri par rayon » à gauche à la place du +.
-- Regroupement discret des notes saisies au clavier selon un dictionnaire local de produits courants.
-- Pas de titres de catégories, ordre stable au sein des groupes, classement sauvegardé immédiatement.
-- Notes non classables placées en fin de liste sans message.
+Modifications ciblées :
+- Écran de démarrage turquoise avec titre MesListes, sablier blanc animé et « Chargement… ».
+- Écran initial défini directement dans le HTML, sans attendre app.js ni IndexedDB.
+- Disparition de cet écran dès que la page d’accueil est construite.
+- Service worker en mode cache d’abord pour les ressources de l’application : démarrage hors ligne rapide après installation.
+- Cache V15 indépendant, ressources précachées lors de l’installation du nouveau service worker.
+- Suppression du fichier de logo historique inutilisé dans la V14 TER.
+- Fond de démarrage du manifeste harmonisé avec le turquoise.
 
-LIMITATION IMPORTANTE : la reconnaissance des notes manuscrites n'est PAS intégrée à cette version.
-Aucun service OCR en ligne gratuit, fiable et pérenne n'a été configuré. Les notes manuscrites
-restent intactes et sont rangées en fin de liste. Le tri des notes tapées fonctionne hors ligne.
+IMPORTANT :
+Sauvegardez vos listes AVANT la mise à jour. Conservez l’archive V14 TER.
+Remplacez les fichiers du dépôt GitHub Pages par ceux du dossier MesListes.
+Lors de la première visite après publication, une connexion Internet est nécessaire
+pour installer et précacher la nouvelle version. Une deuxième ouverture peut être
+nécessaire pour que le nouveau service worker prenne le contrôle.
 
-Installation : sauvegardez d'abord vos listes, puis remplacez les fichiers de votre dépôt GitHub Pages.
-Après publication, ouvrez l'application une fois avec une bonne connexion afin d'installer le cache V12.
-Testez le comportement sur votre iPhone avant d'utiliser le tri sur vos listes importantes.
+Le cache local est prioritaire : lors des prochaines mises à jour, le navigateur peut
+continuer d’afficher l’ancienne version pendant l’installation du nouveau cache.
+Le nettoyage du cache Safari peut aussi entraîner un rechargement réseau.
 
-
-Version stable V12 — Tri clavier uniquement : le bouton Tri par rayon apparaît dans Éditer seulement si toutes les notes de la liste sont saisies au clavier. Aucune reconnaissance manuscrite. Le tri est local et conserve le contenu des notes.
-
-Correctif : le bouton Tri par rayon est masqué si la liste est vide ou si une note ne contient pas de texte clavier, y compris une note manuscrite ou photo seule. Le tri est également bloqué par sécurité dans ces cas.
-
-Correctif sélection des fichiers sur iPhone : import et restauration utilisent désormais un input attaché à la page jusqu'à la fin de lecture. Les fichiers JSON et les données ne changent pas.
-
-V13 — STABILISATION (15 novembre 2026)
-- Roue dentée blanche redessinée, plus grande, placée au bas du coin gauche du bandeau.
-- Paramètres : interrupteur « Confirmation de suppression », désactivé par défaut.
-  Désactivé : suppression immédiate d'une note par glissement. Activé : demande de confirmation.
-  Les suppressions groupées via Éditer et les suppressions de listes conservent leur confirmation.
-- Préférence de confirmation enregistrée localement ; choix de saisie par défaut conservé.
-- Amélioration des messages d'erreur lors de la suppression.
-- Service worker : nouvelle version du cache et vérification réseau des navigations,
-  avec repli hors ligne. Les autres ressources restent utilisables hors ligne.
-- Aucun changement du format de stockage IndexedDB, des sauvegardes JSON ou des listes partagées.
-
-IMPORTANT : faire une sauvegarde de vos listes avant de remplacer les fichiers sur GitHub Pages.
-Après mise à jour, ouvrir l'application en ligne pour charger la V13, puis vérifier son
-fonctionnement sur iPhone. Les tests de syntaxe ne remplacent pas les essais sur appareil.
+Contrôles effectués : syntaxe JavaScript et intégrité de l’archive.
+Le démarrage et toutes les fonctions doivent être testés sur un iPhone réel.
