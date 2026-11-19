@@ -38,7 +38,52 @@ const uid=()=>crypto.randomUUID(), E=(t,c='',v)=>{const e=document.createElement
 const ico=(name)=>({check:'<circle cx="12" cy="12" r="10"/><path d="m7.5 12 3 3 6-6"/>',circle:'<circle cx="12" cy="12" r="10"/>',share:'<path d="M12 14V2m0 0L8.5 5.5M12 2l3.5 3.5"/><path d="M6 9H5.5A1.5 1.5 0 0 0 4 10.5v9A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 18.5 9H18"/>',reset:'<path d="M3 11a9 9 0 0 1 15.4-6.4L21 7"/><path d="M21 2v5h-5"/><path d="M21 13a9 9 0 0 1-15.4 6.4L3 17"/><path d="M3 22v-5h5"/>',eraser:'<path d="M20.5 13.5 12 22H6a3 3 0 0 1-2.1-.9l-2-2a3 3 0 0 1 0-4.2L13.5 3.3a3 3 0 0 1 4.2 0l3.8 3.8a3 3 0 0 1 0 4.2z"/><path d="m8 9 7 7"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6.5 7l.8 13h9.4l.8-13M10 11v6m4-6v6"/>',camera:'<path d="M2 7h4.5l2-3h7l2 3H22v14H2z"/><circle cx="12" cy="14" r="4"/>',keyboard:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9.5h.01M10 9.5h.01M14 9.5h.01M18 9.5h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M7 16h10"/>',pen:'<path d="m4 20 4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20z"/>',folder:'<path d="M3 6h7l2 3h9v12H3z"/>',back:'<path d="M15 3 6 12l9 9"/>',plus:'<path d="M12 4v16M4 12h16"/>',photo:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><path d="m3 17 6-6 4 4 3-3 5 5"/>',import:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 10.5v7m0 0-3-3m3 3 3-3"/>',save:'<path d="M4 2.5h13l4 4V21.5H3V2.5h1z"/><path d="M7 2.5v7h10v-7M7 21.5v-8h10v8"/><path d="M14 3.5v4.5M9.5 16.5h5M9.5 19h5"/>',sort:'<path d="M4 6h16M4 12h12M4 18h8"/>',settings:'<path d="M9.392 4.384 L9.853 2.028 L14.147 2.028 L14.608 4.384 L15.542 4.771 L17.533 3.431 L20.569 6.467 L19.229 8.458 L19.616 9.392 L21.972 9.853 L21.972 14.147 L19.616 14.608 L19.229 15.542 L20.569 17.533 L17.533 20.569 L15.542 19.229 L14.608 19.616 L14.147 21.972 L9.853 21.972 L9.392 19.616 L8.458 19.229 L6.467 20.569 L3.431 17.533 L4.771 15.542 L4.384 14.608 L2.028 14.147 L2.028 9.853 L4.384 9.392 L4.771 8.458 L3.431 6.467 L6.467 3.431 L8.458 4.771 Z"/><circle cx="12" cy="12" r="3.4"/>' ,link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',restore:'<path d="M3 10a9 9 0 1 1 2.5 8"/><path d="M3 4.5V10h5.5"/>'})[name];
 function icon(name){const span=E('span','icon');span.innerHTML=`<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.28" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ico(name)}</svg>`;return span}
 function ib(name,fn,label,cls=''){const b=B('',fn,'iconButton '+cls);b.append(icon(name));b.setAttribute('aria-label',label);return b}
-async function load(){try{const req=indexedDB.open('MesListesDB',1);req.onupgradeneeded=()=>req.result.createObjectStore('state');const database=await new Promise((ok,no)=>{req.onsuccess=()=>ok(req.result);req.onerror=()=>no(req.error)});window.store=database;const tx=database.transaction('state'),r=tx.objectStore('state').get('data');const stored=await new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});if(stored?.lists)db=stored;else{const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old?.lists){db=old;await save()}}}catch(e){console.error(e);let old=null;try{old=JSON.parse(localStorage.getItem(KEY)||'null')}catch{}if(old?.lists)db=old;alert('Le stockage local n’est pas disponible. Évitez de créer des notes avant de résoudre ce problème.')}render()}
+// V16: never leave the launch screen spinning indefinitely.
+// A timeout reports a storage problem without pretending an empty database is safe.
+function withDeadline(promise,ms,message){
+ let timer;
+ return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(message)),ms)})])
+   .finally(()=>clearTimeout(timer));
+}
+async function load(){
+ try{
+  const req=indexedDB.open('MesListesDB',1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('state'))req.result.createObjectStore('state')};
+  const database=await withDeadline(new Promise((ok,no)=>{
+   req.onsuccess=()=>ok(req.result);
+   req.onerror=()=>no(req.error||Error('Ouverture de la base impossible'));
+   req.onblocked=()=>no(Error('Base de données occupée par une autre fenêtre'));
+  }),6500,'La base de données locale ne répond pas');
+  window.store=database;
+  const tx=database.transaction('state','readonly');
+  const r=tx.objectStore('state').get('data');
+  const stored=await withDeadline(new Promise((ok,no)=>{
+   r.onsuccess=()=>ok(r.result);
+   r.onerror=()=>no(r.error||Error('Lecture des listes impossible'));
+  }),6500,'La lecture des listes ne répond pas');
+  if(stored?.lists)db=stored;
+  else{
+   let old=null;
+   try{old=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+   if(old?.lists){db=old;await withDeadline(save(),6500,'La migration des listes ne répond pas')}
+  }
+  render();
+  hideBoot();
+ }catch(error){
+  console.error('MesListes : démarrage interrompu',error);
+  showBootError('Impossible de charger les listes locales. Vos données n’ont pas été effacées. Vous pouvez réessayer sans supprimer l’application.',error);
+ }
+}
+function hideBoot(){const boot=document.getElementById('boot');if(boot)boot.hidden=true}
+function showBootError(message,error){
+ const boot=document.getElementById('boot');if(!boot)return;
+ const label=boot.querySelector('.bootLabel');if(label)label.textContent=message;
+ const hourglass=boot.querySelector('.hourglass');if(hourglass)hourglass.hidden=true;
+ let retry=boot.querySelector('#bootRetry');
+ if(!retry){retry=document.createElement('button');retry.id='bootRetry';retry.type='button';retry.textContent='Réessayer';retry.onclick=()=>location.reload();boot.append(retry)}
+ const detail=boot.querySelector('#bootDetail')||document.createElement('small');
+ detail.id='bootDetail';detail.textContent=error?.message||'Erreur inconnue';if(!detail.parentNode)boot.append(detail);
+}
 function save(){return new Promise((ok,no)=>{if(!window.store){no(Error('Stockage indisponible'));return}const tx=store.transaction('state','readwrite');tx.objectStore('state').put(db,'data');tx.oncomplete=ok;tx.onabort=()=>no(tx.error||Error('Transaction annulée'));tx.onerror=()=>no(tx.error)})}
 async function persist(){try{await save()}catch(e){alert('Enregistrement impossible. Exportez une sauvegarde avant de quitter.');throw e}}
 const list=()=>db.lists.find(x=>x.id===current);
@@ -138,7 +183,7 @@ async function sortByAisle(){
  try{await persist();selected.clear();render()}
  catch(e){notes.splice(0,notes.length,...previous)}
 }
-function render(){const boot=document.getElementById('boot');if(boot)boot.hidden=true;app.replaceChildren();if(page==='editor')return renderEditor();if(page==='settings')return renderSettings();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
+function render(){app.replaceChildren();if(page==='editor')return renderEditor();if(page==='settings')return renderSettings();app.append(header());const area=E('section','items');const arr=page==='home'?db.lists:list().notes;arr.forEach((v,i)=>{const wrap=E('div','swipeWrap'),row=E('div','item '+(v.received?'received':''));if(editing){const cb=B('',()=>{if(selected.has(v.id))selected.delete(v.id);else selected.add(v.id);render()},'selectCircle'+(selected.has(v.id)?' checked':''));cb.setAttribute('aria-label',(selected.has(v.id)?'Désélectionner ':'Sélectionner ')+(page==='home'?v.name:'la note'));cb.setAttribute('aria-pressed',String(selected.has(v.id)));cb.append(icon(selected.has(v.id)?'check':'circle'));row.append(cb)}
 if(page==='home'){row.append(B(v.name,()=>{current=v.id;page='detail';editing=false;selected.clear();render()},'name'),E('span','number','['+v.notes.length+']'))}else{const c=E('canvas','noteCanvas');row.append(c);if(v.text){c.style.display='none';row.append(E('span','typedNote',v.text))}else requestAnimationFrame(()=>drawNote(c,v.strokes,v.coordinateVersion));if(v.url){const linkButton=ib('link',()=>openNoteLink(v),'Ouvrir le lien de la note','noteLinkButton');row.append(linkButton)}if(v.photos?.length){const thumb=B('',()=>viewPhotos(v.photos),'photoThumb');const im=E('img');im.src=v.photos[0];im.alt='Première photo de la note';im.loading='lazy';thumb.append(im);row.append(thumb)}}
 if(editing){const handle=E('span','handle','☰');row.append(handle);sortable(handle,wrap,arr,i,area)}else{const del=B('Supprimer',()=>{if(page==='detail'&&!confirmSingleNoteDeletion){removeSingleNoteWithoutConfirmation(arr,i);return}removeConfirm(page==='home'?'cette liste':'cette note',async()=>{const removed=arr.splice(i,1);try{await persist()}catch(e){arr.splice(i,0,...removed);throw e}})},'swipeDelete');wrap.append(del);swipe(row)}wrap.append(row);area.append(wrap)});if(!arr.length)area.append(E('p','empty',page==='home'?'Appuyez sur + pour créer une liste.':'Aucune note. Appuyez sur + pour écrire.'));app.append(area,footer())}
 function swipe(row){let sx=0,sy=0,open=false;row.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});row.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)*1.4){open=dx<0;row.style.transform=open?'translateX(-116px)':''}},{passive:true})}
@@ -219,4 +264,5 @@ function drawHandwriting(ctx,n,x,y,maxW,maxH){const strokes=n.strokes||[];let mi
 async function loadPhoto(src){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src})}
 async function listImages(l){const W=1000,H=1400,margin=55;let pages=[],canvas,ctx,y;const fresh=()=>{canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.fillStyle='#111';ctx.font='bold 48px -apple-system, sans-serif';ctx.fillText(l.name,margin,85,W-margin*2);ctx.strokeStyle='#ddd';ctx.beginPath();ctx.moveTo(margin,112);ctx.lineTo(W-margin,112);ctx.stroke();y=145};const finish=()=>{ctx.fillStyle='#777';ctx.font='20px sans-serif';ctx.fillText('MesListes — page '+(pages.length+1),margin,H-24);pages.push(canvas)};fresh();for(const note of l.notes){if(y+160>H-70){finish();fresh()}if(note.text){ctx.fillStyle='#171717';ctx.font='32px sans-serif';const words=note.text.split(/\s+/);let line='',yy=y+38;for(const word of words){const candidate=line?line+' '+word:word;if(ctx.measureText(candidate).width>W-margin*2-24&&line){ctx.fillText(line,margin+12,yy);yy+=42;line=word}else line=candidate}if(line)ctx.fillText(line,margin+12,yy);y=Math.max(y+155,yy+28)}else{drawHandwriting(ctx,note,margin+12,y+12,W-margin*2-24,115);y+=155}if(note.url){ctx.fillStyle='#087f82';ctx.font='23px sans-serif';const display=note.url.length>72?note.url.slice(0,69)+'…':note.url;ctx.fillText(display,margin+12,y+20,W-margin*2-24);y+=42}for(const src of note.photos||[]){const im=await loadPhoto(src),avail=W-margin*2,scale=Math.min(avail/im.width,900/im.height),h=Math.ceil(im.height*scale);if(y+h+30>H-65){finish();fresh()}ctx.drawImage(im,margin,y,Math.ceil(im.width*scale),h);y+=h+25}ctx.strokeStyle='#e5e5e5';ctx.beginPath();ctx.moveTo(margin,y);ctx.lineTo(W-margin,y);ctx.stroke();y+=25}finish();return Promise.all(pages.map(c=>new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(Error('Image impossible')),'image/png'))))}
 async function shareImages(){try{const l=list(),blobs=await listImages(l),files=blobs.map((b,i)=>new File([b],'MesListes-'+l.name.replace(/[^\p{L}\p{N}-]/gu,'_')+'-'+(i+1)+'.png',{type:'image/png'}));if(navigator.canShare?.({files}))await navigator.share({files,title:l.name});else{files.forEach(f=>download(f.name,f,'image/png'));alert('Images créées. Vous pouvez les envoyer depuis Fichiers ou Photos.')}}catch(e){if(e.name!=='AbortError')alert('Création des images impossible : '+e.message)}}
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});load();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(error=>console.warn('Cache hors ligne indisponible',error));
+load();

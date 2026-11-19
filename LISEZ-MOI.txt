@@ -1,26 +1,17 @@
-MesListes V15 — 18 novembre 2026
+MesListes V16 — diagnostic du démarrage (19 novembre 2026)
 
-Base : V14 TER. Toutes les données locales et fonctionnalités sont conservées.
+Modifications par rapport à V15 :
+- Détection des blocages d’ouverture et de lecture IndexedDB (délai de 6,5 secondes).
+- Affichage d’une erreur explicite et d’un bouton Réessayer au lieu d’un sablier sans fin.
+- Le sablier disparaît seulement après construction de l’interface.
+- Chargement des fichiers JavaScript et CSS versionnés pour réduire les incohérences de cache.
+- Cache hors ligne mis à jour, avec page de démarrage disponible localement.
 
-Modifications ciblées :
-- Écran de démarrage turquoise avec titre MesListes, sablier blanc animé et « Chargement… ».
-- Écran initial défini directement dans le HTML, sans attendre app.js ni IndexedDB.
-- Disparition de cet écran dès que la page d’accueil est construite.
-- Service worker en mode cache d’abord pour les ressources de l’application : démarrage hors ligne rapide après installation.
-- Cache V15 indépendant, ressources précachées lors de l’installation du nouveau service worker.
-- Suppression du fichier de logo historique inutilisé dans la V14 TER.
-- Fond de démarrage du manifeste harmonisé avec le turquoise.
+Aucune migration ni suppression de la base de données n’est effectuée.
+Toutes les fonctionnalités de V15 sont conservées.
 
-IMPORTANT :
-Sauvegardez vos listes AVANT la mise à jour. Conservez l’archive V14 TER.
-Remplacez les fichiers du dépôt GitHub Pages par ceux du dossier MesListes.
-Lors de la première visite après publication, une connexion Internet est nécessaire
-pour installer et précacher la nouvelle version. Une deuxième ouverture peut être
-nécessaire pour que le nouveau service worker prenne le contrôle.
+IMPORTANT : ce correctif ne garantit pas l’absence de l’écran blanc natif iOS
+avant le chargement HTML. Tester dans Safari ET depuis l’icône.
 
-Le cache local est prioritaire : lors des prochaines mises à jour, le navigateur peut
-continuer d’afficher l’ancienne version pendant l’installation du nouveau cache.
-Le nettoyage du cache Safari peut aussi entraîner un rechargement réseau.
-
-Contrôles effectués : syntaxe JavaScript et intégrité de l’archive.
-Le démarrage et toutes les fonctions doivent être testés sur un iPhone réel.
+Sauvegardez vos listes avant toute mise à jour. Ne supprimez pas l’icône
+iPhone ni les données Safari pour résoudre un problème de démarrage.
