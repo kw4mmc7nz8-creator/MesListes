@@ -257,3 +257,34 @@
 .homeTop .importHome{position:absolute;left:2px;right:auto;top:50%;bottom:auto;transform:translateY(-50%);width:104px;height:67px;z-index:2}
 .homeTop .settingsHome{position:absolute;right:0!important;left:auto!important;top:auto!important;bottom:2px!important;transform:none!important;z-index:3}
 @media(max-width:375px){.homeTop .importHome{left:1px;right:auto;width:88px}.homeTop .brandTitle{font-size:20px}}
+
+/* V17 — iOS standalone: move the beige/turquoise boundary below the native
+   top-edge blur on interior screens. The home screen is unchanged. */
+#app.interiorPage>.interiorTopExtension{
+  display:block;flex:0 0 54px;height:54px;min-height:54px;
+  background:var(--meslistes,#009c9e);pointer-events:none;
+}
+/* Note editor: OK remains at the top of the beige panel, shifted down with it.
+   Link and Photo share one row in both handwriting and keyboard modes. */
+.editorHead{min-height:58px;padding:7px 13px 0;align-items:flex-start;justify-content:flex-start}
+.editorHead .editorOk{width:48px;height:48px;flex:none}
+.editorSpace,.editor:has(.keyboardPanel) .editorSpace{
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  gap:10px;padding:0 12px;min-height:118px;flex:1 0 118px;
+}
+.editorSpace .linkGroup,.editorSpace .cameraGroup{
+  flex:0 1 calc(50% - 5px);width:calc(50% - 5px);max-width:none;
+  min-width:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;text-align:center;
+}
+.editorSpace .linkGroup .iconButton,.editorSpace .cameraGroup .iconButton{
+  display:grid;place-items:center;height:46px;flex:none;
+}
+.editorSpace .linkLegend,.editorSpace .cameraLegend{
+  width:100%;max-width:190px;line-height:1.18;
+  font-size:clamp(12px,3.5vw,16px);text-align:center;
+}
+@media(max-height:620px){
+  #app.interiorPage>.interiorTopExtension{height:46px;min-height:46px;flex-basis:46px}
+  .editorSpace,.editor:has(.keyboardPanel) .editorSpace{min-height:100px;flex-basis:100px}
+}

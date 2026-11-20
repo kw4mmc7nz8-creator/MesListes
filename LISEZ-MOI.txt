@@ -1,17 +1,16 @@
-MesListes V16 — diagnostic du démarrage (19 novembre 2026)
+MesListes V17 — 20 novembre 2026
 
-Modifications par rapport à V15 :
-- Détection des blocages d’ouverture et de lecture IndexedDB (délai de 6,5 secondes).
-- Affichage d’une erreur explicite et d’un bouton Réessayer au lieu d’un sablier sans fin.
-- Le sablier disparaît seulement après construction de l’interface.
-- Chargement des fichiers JavaScript et CSS versionnés pour réduire les incohérences de cache.
-- Cache hors ligne mis à jour, avec page de démarrage disponible localement.
+Base : V16. Ne pas effacer les données Safari ni supprimer l’application installée.
+Effectuer une sauvegarde des listes avant la mise à jour.
 
-Aucune migration ni suppression de la base de données n’est effectuée.
-Toutes les fonctionnalités de V15 sont conservées.
+Changements :
+- Page d’accueil inchangée.
+- Pages intérieures : extension turquoise de 54 px au-dessus de l’en-tête
+  (46 px sur les écrans très courts) pour repousser la frontière beige.
+- Page de saisie manuscrite et clavier : OK descend avec la zone beige ;
+  Lien et Photo sont sur une même ligne, à gauche et à droite.
+- Les fonctionnalités, formats de données et sauvegardes restent inchangés.
+- Cache versionné V17.
 
-IMPORTANT : ce correctif ne garantit pas l’absence de l’écran blanc natif iOS
-avant le chargement HTML. Tester dans Safari ET depuis l’icône.
-
-Sauvegardez vos listes avant toute mise à jour. Ne supprimez pas l’icône
-iPhone ni les données Safari pour résoudre un problème de démarrage.
+À vérifier sur iPhone : netteté de la séparation, clavier ouvert,
+quadrillage manuscrit, boutons Lien/Photo, paramètres, sauvegarde.
