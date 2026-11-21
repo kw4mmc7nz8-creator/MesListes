@@ -230,7 +230,28 @@ function choosePhoto(){
 }
 function compressPhoto(file){return new Promise((ok,no)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,1400/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);ok(c.toDataURL('image/jpeg',.76))};img.onerror=()=>{URL.revokeObjectURL(url);no(Error('Image illisible'))};img.src=url})}
 function showAttached(){const el=document.querySelector('.attached');if(!el)return;el.replaceChildren();photos.forEach((p,i)=>{const img=E('img','attachedThumb');img.src=p;img.onclick=()=>viewPhotos(photos);el.append(img)})}
-function viewPhotos(images){let i=0;const shade=E('div','photoView'),img=E('img');const caption=E('span','photoCounter');const show=()=>{img.src=images[i];caption.textContent=`${i+1} / ${images.length}`};shade.append(B('Fermer ✕',()=>shade.remove()),caption,img,B('◀ Précédente',()=>{i=(i+images.length-1)%images.length;show()}),B('Suivante ▶',()=>{i=(i+1)%images.length;show()}));document.body.append(shade);show()}
+function viewPhotos(images){
+ let i=0,scale=1,tx=0,ty=0,startDist=0,startScale=1,startX=0,startY=0,lastTap=0;
+ const shade=E('div','photoView'),stage=E('div','photoStage'),img=E('img','photoFull'),caption=E('span','photoCounter');
+ const pointers=new Map();
+ const clamp=()=>{const w=stage.clientWidth,h=stage.clientHeight;const naturalW=img.naturalWidth||w,naturalH=img.naturalHeight||h;const fit=Math.min(w/naturalW,h/naturalH,1e6);const shownW=naturalW*fit,shownH=naturalH*fit;tx=Math.max(-Math.max(0,(shownW*scale-w)/2),Math.min(Math.max(0,(shownW*scale-w)/2),tx));ty=Math.max(-Math.max(0,(shownH*scale-h)/2),Math.min(Math.max(0,(shownH*scale-h)/2),ty))};
+ const draw=()=>{clamp();img.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${scale})`};
+ const reset=()=>{scale=1;tx=ty=0;pointers.clear();draw()};
+ const show=()=>{img.src=images[i];caption.textContent=`${i+1} / ${images.length}`;reset()};
+ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ stage.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();stage.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2){const [a,b]=[...pointers.values()];startDist=distance(a,b);startScale=scale;startX=(a.x+b.x)/2;startY=(a.y+b.y)/2}else if(pointers.size===1){startX=e.clientX;startY=e.clientY}});
+ stage.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();const prev=pointers.get(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2){const [a,b]=[...pointers.values()];const newScale=Math.max(1,Math.min(5,startScale*distance(a,b)/Math.max(1,startDist)));const midX=(a.x+b.x)/2,midY=(a.y+b.y)/2;tx+=midX-startX;ty+=midY-startY;startX=midX;startY=midY;scale=newScale;draw()}else if(pointers.size===1&&scale>1){tx+=e.clientX-prev.x;ty+=e.clientY-prev.y;draw()}});
+ const end=e=>{if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);if(pointers.size===1){const a=[...pointers.values()][0];startX=a.x;startY=a.y}if(pointers.size===0&&scale<=1){tx=ty=0;draw()}};
+ stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
+ stage.addEventListener('dblclick',e=>{e.preventDefault();scale=scale>1?1:2.5;tx=ty=0;draw()});
+ stage.addEventListener('touchend',e=>{if(e.changedTouches.length!==1||e.touches.length)return;const now=Date.now();if(now-lastTap<300){e.preventDefault();scale=scale>1?1:2.5;tx=ty=0;draw();lastTap=0}else lastTap=now},{passive:false});
+ const close=()=>{window.removeEventListener('keydown',key);shade.remove()};
+ const key=e=>{if(e.key==='Escape')close();else if(e.key==='ArrowLeft')next(-1);else if(e.key==='ArrowRight')next(1)};
+ const next=delta=>{i=(i+images.length+delta)%images.length;show()};
+ const header=E('div','photoViewHeader');header.append(B('Fermer ✕',close),caption);
+ const footer=E('div','photoViewFooter');footer.append(B('◀ Précédente',()=>next(-1)),B('Suivante ▶',()=>next(1)));
+ img.alt='Photo de la note';img.draggable=false;stage.append(img);shade.append(header,stage,footer);document.body.append(shade);window.addEventListener('keydown',key);show();
+}
 function download(name,contents,type='application/json'){const u=URL.createObjectURL(contents instanceof Blob?contents:new Blob([contents],{type})),a=E('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),10000)}
 function choiceDialog(title,description,choices){const cover=E('div','modal'),box=E('div','dialog choiceDialog');box.append(E('strong','',title));if(description)box.append(E('p','dialogDescription',description));const row=E('div','choiceActions');for(const [label,icoName,fn] of choices){const b=B('',()=>{cover.remove();fn()},'choiceAction');b.append(icon(icoName),E('span','',label));row.append(b)}box.append(row);const bottom=E('div','choiceBottom');bottom.append(B('Annuler',()=>cover.remove(),'cancelChoice'));box.append(bottom);cover.append(box);document.body.append(cover);return cover}
 function backupDialog(){choiceDialog('Sauvegarde locale','Sauvegardez toutes vos listes ou restaurez une copie de sauvegarde.',[['Créer une copie de sauvegarde','save',()=>download('MesListes-sauvegarde.json',JSON.stringify({format:'MesListes',version:7,kind:'backup',lists:db.lists}))],['Restaurer une copie de sauvegarde','restore',restoreBackup]])}

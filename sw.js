@@ -1,6 +1,6 @@
 // V17: reliable offline cache, versioned assets, bounded network navigation.
-const CACHE='meslistes-v17-20261120';
-const ASSETS=['./index.html','./style.css?v=17','./app.js?v=17','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
+const CACHE='meslistes-v17bis-20261121';
+const ASSETS=['./index.html','./style.css?v=17bis','./app.js?v=17bis','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
  const keys=await caches.keys();
